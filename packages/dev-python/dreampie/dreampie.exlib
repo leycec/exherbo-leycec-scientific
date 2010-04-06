@@ -5,8 +5,7 @@
 
 # Dreampie hosts its front-facing website with Sourceforge, but its
 # download with Launchpad. Thus, this order of exlibs is important.
-require distutils sourceforge launchpad [ suffix=tar.gz ]
-#export_exlib_phases src_prepare
+require distutils sourceforge launchpad [ branch=trunk suffix=tar.gz ]
 
 BUGS_TO="leycec@gmail.com"
 
@@ -32,9 +31,4 @@ DEPENDENCIES="
         gnome-bindings/pygtk:2
         gnome-bindings/pygtksourceview:2
 "
-
-#WORK="${WORKBASE}"
-
-#dreampie_src_prepare() {
-#}
 
