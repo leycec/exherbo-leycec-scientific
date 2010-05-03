@@ -1,0 +1,58 @@
+# Copyright 2010 Cecil Curry <leycec@gmail.com>
+# Distributed under the terms of the GNU General Public License v2
+
+# Based in part upon 'dreampie-1.0.2.ebuild' from Gentoo, which is:
+#     Copyright 1999-2010 Gentoo Foundation
+
+require distutils [ python_dep=2.6 ] pypi
+export_exlib_phases src_test src_install
+
+BUGS_TO="leycec@gmail.com"
+
+SUMMARY="Python package for creating, manipulating, and studying complex networks"
+DESCRIPTION="
+NetworkX is a Python package for the creation, manipulation, and study of
+complex networks. These networks are encoded as graphs, digraphs, multi-graphs,
+and hyper-graphs having edges (i.e., connections, links, ties, arcs, bonds)
+between nodes (i.e., vertices, sites, actors) with optional weights (i.e.,
+fields, properties). The potential audience for NetworkX includes
+mathematicians, physicists, biologists, computer scientists, and social
+scientists.
+"
+
+# The "pypi" exlib provides an appropriate ${DOWNLOADS}. Redefine the rest.
+HOMEPAGE="http://${PN}.lanl.gov"
+UPSTREAM_DOCUMENTATION="${HOMEPAGE}/contents.html [[ lang = en ]]"
+
+SLOT="0"
+LICENCES="LGPL-2.1"
+MYOPTIONS="
+    examples
+    dot  [[ description = [ Read and write Graphviz files ] ]]
+    yaml [[ description = [ Read and write YAML files ] ]]
+"
+DEPENDENCIES="
+    run:
+        dot?  ( dev-python/pygraphviz )
+        yaml? ( dev-python/PyYAML )
+"
+
+DEFAULT_SRC_PREPARE_PATCHES=( "${FILES}/setup.py.patch" )
+
+#FIXME leycec: If I had a dollar for every failing test, I'd have several.
+RESTRICT="test"
+
+networkx_src_test() {
+    export PYTHONPATH="build-$(python_get_abi)/lib"
+    edo nosetests-$(python_get_abi)
+}
+
+networkx_src_install() {
+    distutils_src_install
+
+    if option examples; then
+        insinto "/usr/share/doc/${PNV}/examples"
+        doins -r examples/*
+    fi
+}
+

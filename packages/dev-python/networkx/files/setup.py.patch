@@ -1,0 +1,52 @@
+Authors:  Cecil Curry <leycec@gmail.com>
+Upstream: no
+Synopsis: Prevent automated installation of documents and examples.
+diff -Nuar old/setup.py new/setup.py
+--- old/setup.py	2010-04-22 02:51:57.000000000 +0000
++++ new/setup.py	2010-05-03 14:15:14.510687006 +0000
+@@ -45,26 +45,6 @@
+           "networkx.tests",
+           ]
+ 
+-docdirbase  = 'share/doc/networkx-%s' % release.version
+-# add basic documentation 
+-data = [(docdirbase, glob("*.txt"))]
+-# add examples
+-for d in ['advanced',
+-          'algorithms',
+-          'basic',
+-          'drawing',
+-          'graph',
+-          'multigraph',
+-          'pygraphviz',
+-          'readwrite']:
+-    dd=os.path.join(docdirbase,'examples',d)
+-    pp=os.path.join('examples',d)
+-    data.append((dd,glob(os.path.join(pp,"*.py"))))
+-    data.append((dd,glob(os.path.join(pp,"*.bz2"))))
+-    data.append((dd,glob(os.path.join(pp,"*.gz"))))
+-    data.append((dd,glob(os.path.join(pp,"*.mbox"))))
+-    data.append((dd,glob(os.path.join(pp,"*.edgelist"))))
+-
+ # add the tests
+ package_data     = {
+     'networkx': ['tests/*.py'],
+@@ -101,7 +81,6 @@
+         download_url     = release.download_url,
+         classifiers      = release.classifiers,
+         packages         = packages,
+-        data_files       = data,
+         package_data     = package_data
+       )
+ 
+diff -Nuar old/setup_egg.py new/setup_egg.py
+--- old/setup_egg.py	2010-04-22 02:51:57.000000000 +0000
++++ new/setup_egg.py	2010-05-03 14:15:28.068911432 +0000
+@@ -46,7 +46,6 @@
+         download_url     = release.download_url,
+         classifiers      = release.classifiers,
+         packages         = packages,
+-        data_files       = data,
+         package_data     = package_data,
+         install_requires=['setuptools'],
+         test_suite       = 'nose.collector', 
