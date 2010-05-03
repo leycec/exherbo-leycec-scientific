@@ -1,14 +1,21 @@
 # Copyright 2010 Cecil Curry <leycec@gmail.com>
 # Distributed under the terms of the GNU General Public License v2
-# Based in part upon 'lyx-1.6.5.ebuild' from Gentoo, which is:
-#     Copyright 1999-2010 Gentoo Foundation
- 
-# ....................{ EXLIB                              }....................
+# 
+# --------------------( SEE ALSO                           )--------------------
+# * "LyX Build Systems." 
+#   http://wiki.lyx.org/Devel/BuildSystems
+# --------------------( TODO                               )--------------------
+# * LyX requires TeX Live 2009. Sadly, due to the extreme complexities of
+#   its installation, Exherbo has no such exheres. Thus, this exheres assumes
+#   you install TeX Live manually via the customary "net install." See:
+#       http://www.tug.org/texlive/doc/texlive-en/texlive-en.html 
 
-require \
-    autotools [ supported_autoconf=[ 2.5 ] supported_automake=[ 1.5 ] ] \
-    xfont
-export_exlib_phases pkg_postinst
+# ....................{ EXLIB                              }....................
+# LyX supports a wide array of build systems: i.e., autotools, CMake, and SCons.
+# This exheres prefers SCons, due to the relative transparencies of that system.
+# That said, as can be seen below, SCons is hardly perfect.
+require scons xfont
+export_exlib_phases src_prepare src_compile src_install pkg_postinst
 
 # ....................{ EXHERES                            }....................
 BUGS_TO="leycec@gmail.com"
@@ -31,19 +38,19 @@ languages like Chinese, Japanese, and Korean, and bidirectional writing.
 #FIXME leycec: add mirrors as listed at the bottom of:
 #    http://www.lyx.org/Download
 HOMEPAGE="http://www.${PN}.org"
-DOWNLOADS="ftp://ftp.devel.${PN}.org/pub/${PN}/stable/$(ever range 1-2).x/${PNV}.tar.bz2"
-UPSTREAM_DOCUMENTATION="http://wiki.${PN}.org/LyX/Documentation"
+DOWNLOADS="ftp://ftp.devel.${PN}.org/pub/${PN}/stable/${PNV}.tar.bz2"
+UPSTREAM_DOCUMENTATION="http://wiki.${PN}.org/LyX/Documentation [[ lang = en ]]"
 REMOTE_IDS="freshmeat:${PN}"
 
 SLOT="0"
 LICENCES="GPL-2"
 MYOPTIONS+="
     cups
-    docbook [[ description = [ convert docbook to lyx documents ] ]]
-    dot     [[ description = [ include graphviz dot files ] ]]
-    dia     [[ description = [ include dia diagrams ] ]]
-    pdf     [[ description = [ convert lyx to pdf documents ] ]]
-    spell   [[ description = [ provide spell checking ] ]]
+    docbook [[ description = [ Convert Docbook to LyX documents ] ]]
+    dot     [[ description = [ Include Graphviz dot files ] ]]
+    dia     [[ description = [ Include Dia diagrams ] ]]
+    pdf     [[ description = [ Convert LyX to PDF documents ] ]]
+    spell   [[ description = [ Provide aspell checking ] ]]
 "
 
 # For a list of all hypothetical LyX dependencies, see:
@@ -56,10 +63,10 @@ DEPENDENCIES+="
         media-libs/fontconfig
         media-libs/freetype:2
         sys-devel/gettext[>=0.12]
+        sys-libs/zlib
         x11-libs/qt:4[>=4.2.2]
         spell? ( app-spell/aspell )
     run:
-        app-text/texlive
         media-gfx/ImageMagick
         cups?    ( net-print/cups )
         dia?     ( app-diagram/dia )
@@ -67,23 +74,134 @@ DEPENDENCIES+="
         dot?     ( media-gfx/graphviz )
         pdf?     ( app-text/ghostscript )
 "
+#       app-text/texlive
 
-DEFAULT_SRC_CONFIGURE_PARAMS=(
-    # Always disable debugging, at the moment.
-    --disable-debug
-    --disable-stdlib-debug
-    # Always enable gettext-provided native language support (nls).
-    --enable-nls
-    # Use the system-installed boost rather than LyX's boost.
-    --without-included-boost
-)
-#DEFAULT_SRC_CONFIGURE_OPTION_ENABLES=( "doc " )
-DEFAULT_SRC_CONFIGURE_OPTION_WITHS=( "spell aspell" )
+DEFAULT_SRC_PREPARE_PATCHES=( "${FILES}/scons_utils.py.patch" )
 
-#WORK="${WORKBASE}/${ECLIPSE_BUILD_NV}"
+# Absolute path to the directory under which LyX is compiled.
+#LYX_BUILD_DIR="${WORK}/build"
+
+#DEFAULT_SRC_CONFIGURE_PARAMS=(
+#    # Always disable monolithic things.
+#    --disable-monolithic-build
+#    # Always disable debugging, at the moment.
+#    --disable-debug
+#    --disable-stdlib-debug
+#    # Always enable gettext-provided native language support (nls).
+#    --enable-nls
+#    # Use the system-installed boost rather than LyX's built-in boost.
+#    --without-included-boost
+#)
+#DEFAULT_SRC_CONFIGURE_OPTION_WITHS=( "spell aspell" )
+
+# Absolute path to the directory under which LyX installs itself.
+LYX_HOME="/usr/share/lyx"
+
+# Absolute path to the directory under which LyX installs binaries.
+#LYX_BIN_DIR="${LYX_HOME}/bin"
+
+# The conventional TeX font cache lives at "/var/cache/fonts". Since writing to
+# that path breaks path sandboxing, write to a temporary path. (Note this is not
+# ideal, as fonts which have already been cached by other exheres or
+# applications should not be re-cached by this one. Still, it is the easy fix.)
+export VARTEXFONTS="${TEMP}/font_cache"
+
+# SCons acquires nonsensical values for these variables, causing failure during
+# configuration. Stop that.
+export CC=
+export CXX=
+
+# SCons makefiles use non-standard flag names. Who thought that was a good idea?
+export CCFLAGS="${CFLAGS}"
+export CPPFLAGS="${CXXFLAGS}"
+export LINKFLAGS="${LDFLAGS}"
 
 # ....................{ PHASES                             }....................
+lyx_src_prepare() {
+    default
+
+    # Symlink the SCons makefile to the top-level build directory.
+    echo ">>> Symlinking SCons makefile"
+    edo ln -s "${WORK}/development/scons/SConstruct" "${WORK}/"
+
+    #FIXME leycec: "scons.exlib" could use some refactoring. This should be
+    #specifiable in global scope above.
+    echo ">>> Checking SCons parameters"
+
+    SCONS_PARAMS=(
+        # Absolute path to the root directory under which LyX is installed.
+        prefix="/usr"
+        # Absolute path to the directory having shared libraries for QT4.
+        qt_dir="/usr/share/qt4"
+        # Absolute path to the directory having shared libraries for this arch.
+        extra_lib_path="/usr/$(get_libdir)"
+        # Always disable debugging, at the moment.
+        mode=release
+        # Always enable QT4 as the GUI framework.
+        frontend=qt4
+        # Use the system-installed boost.
+        boost=system
+        # Use the system-installed gettext and gettext-provided native language
+        # support (nls).
+        gettext=system nls=yes
+    )
+
+    if option spell
+    then SCONS_PARAMS+=( spell=aspell )
+    else SCONS_PARAMS+=( spell=auto   )
+    fi
+
+    SCONS_SRC_CONFIGURE_PARAMS=( "${SCONS_PARAMS[@]}" )
+    SCONS_SRC_COMPILE_PARAMS=(   "${SCONS_PARAMS[@]}" all )
+    SCONS_SRC_INSTALL_PARAMS=(   "${SCONS_PARAMS[@]}" )
+
+    # SCons requires a versioned Boost installation, but Exherbo installs Boost
+    # versionless. (As it should.) Fix it by first parsing the version of Boost
+    # that is currently installed, and then forcing that version on SCons.
+    echo ">>> Patching SCons makefile"
+    local BOOST_VERSION=$(grep -E '^#define BOOST_LIB_VERSION ".+"$' "/usr/include/boost/version.hpp" | awk '{gsub(/"/, "", $3); print $3}')
+    paludis_assert_unless_nonfatal "grepping \"/usr/include/boost/version.hpp\" failed"
+    edo sed -i "SConstruct" -r \
+        -e 's~^(boost_version = \[).+(\])$~\1'"'${BOOST_VERSION}'"'\2~'
+}
+
+#FIXME leycec: LyX's SCons makefile fails with error when "CFLAGS" and fellows
+#are defined. Patch "scons.exlib" to stop this, later.
+lyx_src_compile() {
+    escons \
+        --config=cache \
+        --jobs ${EXJOBS:-1} \
+        "${SCONS_SRC_COMPILE_PARAMS[@]}"
+}
+
+#FIXME leycec: LyX's SCons makefile compiles and installs docs and examples by
+#default. Make this conditional per usual.
+lyx_src_install() {
+    # "scons.exlib" does not play nicely with "xfont.exlib". Make sure they do.
+    scons_src_install
+    xfont_src_install
+
+    echo ">>> Installing LyX fonts"
+    insinto "/usr/share/fonts/X11/${PN}/"
+    doins "${IMAGE}${LYX_HOME}/fonts"/*.ttf
+
+    #FIXME leycec: Extreme hack assuming TeX Live 2009 has been installed to:
+    #"/usr/share/texlive/2009". If not, this does not create TeX-specific
+    #symlinks -- which is O.K., as these symlinks are not critical files.
+    local TEXMF_HOME="/usr/share/texlive/2009"
+    if [[ -d "${TEXMF_HOME}" ]]; then
+        local TEXMF_LATEX_DIR="${TEXMF_HOME}/texmf-dist/tex/latex"
+        echo ">>> Symlinking LyX TeX files"
+        dodir                   "${TEXMF_LATEX_DIR}"
+        dosym "${LYX_HOME}/tex" "${TEXMF_LATEX_DIR}/${PN}"
+    fi
+}
+
 lyx_pkg_postinst() {
+    echo ">>> Caching LyX fonts and font attributes"
+    xfont_pkg_postinst
+
+    elog
     elog "Please run \"texhash\" to finalize installation."
 }
 
