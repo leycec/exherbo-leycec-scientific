@@ -1,0 +1,89 @@
+# Copyright 2010 Cecil Curry <leycec@gmail.com>
+# Distributed under the terms of the GNU General Public License v2
+# Based in part upon 'lyx-1.6.5.ebuild' from Gentoo, which is:
+#     Copyright 1999-2010 Gentoo Foundation
+ 
+# ....................{ EXLIB                              }....................
+
+require \
+    autotools [ supported_autoconf=[ 2.5 ] supported_automake=[ 1.5 ] ] \
+    xfont
+export_exlib_phases pkg_postinst
+
+# ....................{ EXHERES                            }....................
+BUGS_TO="leycec@gmail.com"
+
+SUMMARY="A WYSIWYM LaTeX editor"
+DESCRIPTION="
+LyX is a document processor adhering to the self-coined \"what you see is what
+you mean\" paradigm (WYSIWYM) as opposed to the conventional WYSIWYG paradigm of
+word processors. In the WYSIWYM workflow, users only care about the structure of
+and information within the text. The formatting of that text is handled by
+LaTeX, an advanced typesetting system. LyX is designed for authors requiring
+professional output with a minimum of effort and without specialist knowledge of
+typesetting. As LyX largely functions as a front-end to the LaTeX typesetting
+system, it produces documents ranging from books, notes, and theses to articles
+in refereed journals, letters, and anything else LaTeX can handle. LyX also
+supports right-to-left languages like Arabic, Persian, and Hebrew, ideographic
+languages like Chinese, Japanese, and Korean, and bidirectional writing.
+"
+
+#FIXME leycec: add mirrors as listed at the bottom of:
+#    http://www.lyx.org/Download
+HOMEPAGE="http://www.${PN}.org"
+DOWNLOADS="ftp://ftp.devel.${PN}.org/pub/${PN}/stable/$(ever range 1-2).x/${PNV}.tar.bz2"
+UPSTREAM_DOCUMENTATION="http://wiki.${PN}.org/LyX/Documentation"
+REMOTE_IDS="freshmeat:${PN}"
+
+SLOT="0"
+LICENCES="GPL-2"
+MYOPTIONS+="
+    cups
+    docbook [[ description = [ convert docbook to lyx documents ] ]]
+    dot     [[ description = [ include graphviz dot files ] ]]
+    dia     [[ description = [ include dia diagrams ] ]]
+    pdf     [[ description = [ convert lyx to pdf documents ] ]]
+    spell   [[ description = [ provide spell checking ] ]]
+"
+
+# For a list of all hypothetical LyX dependencies, see:
+# http://www.lyx.org/AdditionalSoftware
+DEPENDENCIES+="
+    build+run:
+        dev-lang/python:=[>=2.5]
+        dev-libs/boost
+        dev-libs/libxml2
+        media-libs/fontconfig
+        media-libs/freetype:2
+        sys-devel/gettext[>=0.12]
+        x11-libs/qt:4[>=4.2.2]
+        spell? ( app-spell/aspell )
+    run:
+        app-text/texlive
+        media-gfx/ImageMagick
+        cups?    ( net-print/cups )
+        dia?     ( app-diagram/dia )
+        docbook? ( app-text/sgmltools-lite )
+        dot?     ( media-gfx/graphviz )
+        pdf?     ( app-text/ghostscript )
+"
+
+DEFAULT_SRC_CONFIGURE_PARAMS=(
+    # Always disable debugging, at the moment.
+    --disable-debug
+    --disable-stdlib-debug
+    # Always enable gettext-provided native language support (nls).
+    --enable-nls
+    # Use the system-installed boost rather than LyX's boost.
+    --without-included-boost
+)
+#DEFAULT_SRC_CONFIGURE_OPTION_ENABLES=( "doc " )
+DEFAULT_SRC_CONFIGURE_OPTION_WITHS=( "spell aspell" )
+
+#WORK="${WORKBASE}/${ECLIPSE_BUILD_NV}"
+
+# ....................{ PHASES                             }....................
+lyx_pkg_postinst() {
+    elog "Please run \"texhash\" to finalize installation."
+}
+

@@ -2,12 +2,12 @@
 #
 # --------------------( SYNOPSIS                           )--------------------
 # Hello, and welcome to "exherbo-leycec-scientific"! This is an third-party
-# Exherbo repository maintaining scientific ebuilds authored by leycec (i.e.,
-# Cecil Curry). Ebuilds are thought to work with leycec's current machine (i.e.,
+# Exherbo repository maintaining scientific exheres authored by leycec (i.e.,
+# Cecil Curry). Exheres are thought to work with leycec's current machine (i.e.,
 # the AMD64-armed Dell Zino), but should be treated with caution under other
 # machines.
 #
-# Scientific ebuilds closely parallel those in the "scientific" repository, and
+# Scientific exheres closely parallel those in the "scientific" repository, and
 # tend to emphasize Graphviz, Python, and Sage. If you like the repository, you
 # may also enjoy my general-purpose Exherbo repository at:
 #
@@ -17,7 +17,7 @@
 # Install this Exherbo repository as you would any other: e.g., via
 #
 #     # Add an Exherbo repository configuration.
-#     sudo cat > /etc/paludis/repositories/leycec-scientific.conf <<EOF
+#     cat > /etc/paludis/repositories/leycec-scientific.conf <<EOF
 #       location = ${ROOT}/var/db/paludis/repositories/leycec-scientific
 #       sync = git://github.com/leycec/exherbo-leycec-scientific.git
 #       format = exheres
@@ -32,7 +32,7 @@
 # Install the remaining repositories as you would any other: e.g., via
 #
 #     # Add an Exherbo repository configuration for "python".
-#     sudo cat > /etc/paludis/repositories/python.conf <<EOF
+#     cat > /etc/paludis/repositories/python.conf <<EOF
 #       location = ${ROOT}/var/db/paludis/repositories/python
 #       sync = git://git.exherbo.org/python.git
 #       format = exheres
@@ -55,10 +55,10 @@
 # --------------------( PATCHES                            )--------------------
 # Please format patches like so:
 #
-#     # First, move the existing ebuild being patched to a new revision. This
+#     # First, move the existing exheres being patched to a new revision. This
 #     # ensures that repository users will be notified of your update.
 #     #
-#     # For example, suppose the ebuild you are patching is named
+#     # For example, suppose the exheres you are patching is named
 #     # "fvwm-2.5.8.exheres-0". Then issue the following command to git:
 #     git mv fvwm-2.5.8.exheres-0 fvwm-2.5.8-r1.exheres-0
 #
