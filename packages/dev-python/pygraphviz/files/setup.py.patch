@@ -1,0 +1,37 @@
+Authors:  Cecil Curry <leycec@gmail.com>
+Upstream: no
+Synopsis: Prevent automated installation of documents and examples, with
+gracious thanks to Sébastien Fabbro <bicatali@gentoo.org> for the initial patch.
+--- old/setup.py	2010-05-03 13:50:55.906036864 +0000
++++ new/setup.py	2010-05-03 13:51:14.815036664 +0000
+@@ -135,12 +135,6 @@
+ execfile(os.path.join('pygraphviz','release.py'))
+ 
+ packages = ["pygraphviz","pygraphviz.tests"]
+-docdirbase  = 'share/doc/pygraphviz-%s' % version
+-data = [(docdirbase, glob("*.txt")),
+-        (os.path.join(docdirbase, 'examples'),glob("examples/*.py")),
+-        (os.path.join(docdirbase, 'examples'),glob("examples/*.dat")),
+-        (os.path.join(docdirbase, 'examples'),glob("examples/*.dat.gz")),
+-        ]
+ extension = [Extension("pygraphviz._graphviz",
+                       ["pygraphviz/graphviz_wrap.c"],
+                       include_dirs=include_dirs,
+@@ -165,7 +159,6 @@
+       url              = url,      
+       download_url     = download_url,
+       packages         = packages,
+-      data_files       = data,
+       classifiers      = classifiers,
+       ext_modules      = extension,
+       package_data     = package_data,
+--- old/setup_egg.py	2010-05-03 13:50:55.906036864 +0000
++++ new/setup_egg.py	2010-05-03 13:51:55.233315051 +0000
+@@ -34,7 +34,6 @@
+       url              = url,      
+       download_url     = download_url,
+       packages         = packages,
+-      data_files       = data,
+       classifiers      = classifiers,
+       ext_modules      = extension,
+       package_data     = package_data,
