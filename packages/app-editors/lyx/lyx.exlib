@@ -46,11 +46,11 @@ SLOT="0"
 LICENCES="GPL-2"
 MYOPTIONS+="
     cups
-    docbook [[ description = [ Convert Docbook to LyX documents ] ]]
-    dot     [[ description = [ Include Graphviz dot files ] ]]
-    dia     [[ description = [ Include Dia diagrams ] ]]
-    pdf     [[ description = [ Convert LyX to PDF documents ] ]]
-    spell   [[ description = [ Provide aspell checking ] ]]
+    docbook [[ description = [ Support import of Docbook to LyX documents ] ]]
+    pdf     [[ description = [ Support export of LyX to PDF documents ] ]]
+    dot     [[ description = [ Support usage of Graphviz dot files ] ]]
+    dia     [[ description = [ Support usage of Dia diagrams ] ]]
+    spell   [[ description = [ Support aspell checking ] ]]
 "
 
 # For a list of all hypothetical LyX dependencies, see:
@@ -78,27 +78,8 @@ DEPENDENCIES+="
 
 DEFAULT_SRC_PREPARE_PATCHES=( "${FILES}/scons_utils.py.patch" )
 
-# Absolute path to the directory under which LyX is compiled.
-#LYX_BUILD_DIR="${WORK}/build"
-
-#DEFAULT_SRC_CONFIGURE_PARAMS=(
-#    # Always disable monolithic things.
-#    --disable-monolithic-build
-#    # Always disable debugging, at the moment.
-#    --disable-debug
-#    --disable-stdlib-debug
-#    # Always enable gettext-provided native language support (nls).
-#    --enable-nls
-#    # Use the system-installed boost rather than LyX's built-in boost.
-#    --without-included-boost
-#)
-#DEFAULT_SRC_CONFIGURE_OPTION_WITHS=( "spell aspell" )
-
 # Absolute path to the directory under which LyX installs itself.
 LYX_HOME="/usr/share/lyx"
-
-# Absolute path to the directory under which LyX installs binaries.
-#LYX_BIN_DIR="${LYX_HOME}/bin"
 
 # The conventional TeX font cache lives at "/var/cache/fonts". Since writing to
 # that path breaks path sandboxing, write to a temporary path. (Note this is not
@@ -163,6 +144,10 @@ lyx_src_prepare() {
     paludis_assert_unless_nonfatal "grepping \"/usr/include/boost/version.hpp\" failed"
     edo sed -i "SConstruct" -r \
         -e 's~^(boost_version = \[).+(\])$~\1'"'${BOOST_VERSION}'"'\2~'
+
+    # Install man pages to "/usr/share/man" rather than "/usr/man".
+    edo sed -i "SConstruct" -r \
+        -e "s~(man_dir = ).+$~\\1'share/man/man1'~"
 }
 
 #FIXME leycec: LyX's SCons makefile fails with error when "CFLAGS" and fellows
