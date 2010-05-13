@@ -1,0 +1,32 @@
+# Copyright 2010 Cecil Curry <leycec@gmail.com>
+# Distributed under the terms of the GNU General Public License v2
+
+# Based in part upon 'dreampie-1.0.2.ebuild' from Gentoo, which is:
+#     Copyright 1999-2010 Gentoo Foundation
+
+# argparse is available via both PyPi and GoogleCode. The official homepage for
+# argparse is at GoogleCode, however. So, we prefer GoogleCode by requiring its
+# exlib after the "pypi" exlib.
+require distutils [ python_dep=2.6 ] pypi googlecode [ suffix=zip ]
+export_exlib_phases src_test
+
+BUGS_TO="leycec@gmail.com"
+
+SUMMARY="Python package for parsing command-line arguments."
+DESCRIPTION="
+argparse is a Python package for parsing command-line arguments, inspired by but
+significantly improving upon the optparse argument provided by the Python stdlib.
+It handles positional, zero-or-more, and one-or-more arguments, supports sub-
+commands, allows alternative option prefixes like + and /, produces more
+informative usage messages, and provides a much simpler interface for defining
+custom types and actions.
+"
+
+UPSTREAM_DOCUMENTATION="http://${PN}.googlecode.com/svn/tags/$(ever delete_all)/doc/index.html [[ lang = en ]]"
+
+SLOT="0"
+LICENCES="Apache-2.0"
+
+argparse_src_test() {
+    PYTHONPATH="build/lib" edo ${PYTHON} "test/test_${PN}.py"
+}

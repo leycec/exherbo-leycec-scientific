@@ -43,8 +43,7 @@ DEFAULT_SRC_PREPARE_PATCHES=( "${FILES}/setup.py.patch" )
 RESTRICT="test"
 
 networkx_src_test() {
-    export PYTHONPATH="build-$(python_get_abi)/lib"
-    edo nosetests-$(python_get_abi)
+    PYTHONPATH="build-$(python_get_abi)/lib" edo nosetests-$(python_get_abi)
 }
 
 networkx_src_install() {
