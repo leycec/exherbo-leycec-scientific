@@ -17,7 +17,7 @@
 # Install this Exherbo repository as you would any other: e.g., via
 #
 #     # Add an Exherbo repository configuration.
-#     cat > /etc/paludis/repositories/leycec-scientific.conf <<EOF
+#     cat <<EOF > /etc/paludis/repositories/leycec-scientific.conf
 #       location = ${ROOT}/var/db/paludis/repositories/leycec-scientific
 #       sync = git://github.com/leycec/exherbo-leycec-scientific.git
 #       format = exheres
@@ -32,7 +32,7 @@
 # Install the remaining repositories as you would any other: e.g., via
 #
 #     # Add an Exherbo repository configuration for "python".
-#     cat > /etc/paludis/repositories/python.conf <<EOF
+#     cat <<EOF > /etc/paludis/repositories/python.conf
 #       location = ${ROOT}/var/db/paludis/repositories/python
 #       sync = git://git.exherbo.org/python.git
 #       format = exheres

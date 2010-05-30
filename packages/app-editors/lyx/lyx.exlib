@@ -109,7 +109,7 @@ lyx_src_prepare() {
     #specifiable in global scope above.
     echo ">>> Checking SCons parameters"
 
-    SCONS_PARAMS=(
+    scons_params=(
         # Absolute path to the root directory under which LyX is installed.
         prefix="/usr"
         # Absolute path to the directory having shared libraries for QT4.
@@ -128,13 +128,14 @@ lyx_src_prepare() {
     )
 
     if option spell
-    then SCONS_PARAMS+=( spell=aspell )
-    else SCONS_PARAMS+=( spell=auto   )
+    then scons_params+=( spell=aspell )
+    else scons_params+=( spell=auto   )
     fi
 
-    SCONS_SRC_CONFIGURE_PARAMS=( "${SCONS_PARAMS[@]}" )
-    SCONS_SRC_COMPILE_PARAMS=(   "${SCONS_PARAMS[@]}" all )
-    SCONS_SRC_INSTALL_PARAMS=(   "${SCONS_PARAMS[@]}" )
+    # Export global variables, for use by the "scons" exlib.
+    SCONS_SRC_CONFIGURE_PARAMS=( "${scons_params[@]}" )
+    SCONS_SRC_COMPILE_PARAMS=(   "${scons_params[@]}" all )
+    SCONS_SRC_INSTALL_PARAMS=(   "${scons_params[@]}" )
 
     # SCons requires a versioned Boost installation, but Exherbo installs Boost
     # versionless. (As it should.) Fix it by first parsing the version of Boost
@@ -173,9 +174,9 @@ lyx_src_install() {
     #FIXME leycec: Extreme hack assuming TeX Live 2009 has been installed to:
     #"/usr/share/texlive/2009". If not, this does not create TeX-specific
     #symlinks -- which is O.K., as these symlinks are not critical files.
-    local TEXMF_HOME="/usr/share/texlive/2009"
-    if [[ -d "${TEXMF_HOME}" ]]; then
-        local TEXMF_LATEX_DIR="${TEXMF_HOME}/texmf-dist/tex/latex"
+    local texmf_home="/usr/share/texlive/2009"
+    if [[ -d "${texmf_home}" ]]; then
+        local TEXMF_LATEX_DIR="${texmf_home}/texmf-dist/tex/latex"
         echo ">>> Symlinking LyX TeX files"
         dodir                   "${TEXMF_LATEX_DIR}"
         dosym "${LYX_HOME}/tex" "${TEXMF_LATEX_DIR}/${PN}"
@@ -186,7 +187,6 @@ lyx_pkg_postinst() {
     echo ">>> Caching LyX fonts and font attributes"
     xfont_pkg_postinst
 
-    elog
-    elog "Please run \"texhash\" to finalize installation."
+    elog "To complete installation, run \"texhash\"."
 }
 

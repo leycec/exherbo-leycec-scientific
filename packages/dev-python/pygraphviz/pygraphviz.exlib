@@ -33,6 +33,7 @@ DEPENDENCIES="
 DEFAULT_SRC_PREPARE_PATCHES=( "${FILES}/setup.py.patch" )
 
 #FIXME leycec: Fails with "ImportError: No module named _graphviz" at the moment.
+#We probably need to make the compiled C component available to the code, somehow.
 RESTRICT="test"
 
 pygraphviz_src_test() {
@@ -43,8 +44,8 @@ pygraphviz_src_install() {
     distutils_src_install
 
     if option examples; then
-        insinto "/usr/share/doc/${PNV}/examples"
-        doins -r examples/*
+        insinto "/usr/share/doc/${PNV}"
+        doins -r examples
     fi
 }
 

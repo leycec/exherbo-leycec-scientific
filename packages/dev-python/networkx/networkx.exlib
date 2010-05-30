@@ -50,8 +50,8 @@ networkx_src_install() {
     distutils_src_install
 
     if option examples; then
-        insinto "/usr/share/doc/${PNV}/examples"
-        doins -r examples/*
+        insinto "/usr/share/doc/${PNV}"
+        doins -r examples
     fi
 }
 

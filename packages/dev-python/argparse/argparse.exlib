@@ -1,9 +1,6 @@
 # Copyright 2010 Cecil Curry <leycec@gmail.com>
 # Distributed under the terms of the GNU General Public License v2
 
-# Based in part upon 'dreampie-1.0.2.ebuild' from Gentoo, which is:
-#     Copyright 1999-2010 Gentoo Foundation
-
 # argparse is available via both PyPi and GoogleCode. The official homepage for
 # argparse is at GoogleCode, however. So, we prefer GoogleCode by requiring its
 # exlib after the "pypi" exlib.
@@ -20,6 +17,8 @@ It handles positional, zero-or-more, and one-or-more arguments, supports sub-
 commands, allows alternative option prefixes like + and /, produces more
 informative usage messages, and provides a much simpler interface for defining
 custom types and actions.
+
+Note, the Python stdlib for Python >= 2.7.1 provides argparse out of the box.
 "
 
 UPSTREAM_DOCUMENTATION="http://${PN}.googlecode.com/svn/tags/$(ever delete_all)/doc/index.html [[ lang = en ]]"
