@@ -1,0 +1,64 @@
+# Copyright 2010 Cecil Curry <leycec@gmail.com>
+# Distributed under the terms of the GNU General Public License v2
+
+# pyparsing is available at PyPi, Wikispaces, and Sourceforge. Its official
+# homepage, however, is Wikispaces while its official download source is
+# Sourceforge. This, in turn, effects statement order below.
+require distutils [ python_dep=2.6 ] pypi sourceforge [ suffix="tar.gz" ]
+export_exlib_phases src_install
+
+BUGS_TO="leycec@gmail.com"
+
+SUMMARY="Python package for parsing programmatically defined grammars."
+DESCRIPTION="
+pyparsing is a Python package for parsing programmatically defined grammars:
+that is, grammars defined directly in client code by Python parsing objects,
+instead of externally as with lex/yacc-style tools or regex-style matching. It
+optionally includes simple examples for parsing SQL, CORBA IDL, and 4-function
+math. 
+"
+
+HOMEPAGE="http://${PN}.wikispaces.com"
+UPSTREAM_DOCUMENTATION="http://crpppc19.epfl.ch/doc/python-${PN}/htmldoc/frames.html [[ lang = en ]]"
+
+SLOT="0"
+LICENCES="MIT"
+MYOPTIONS="doc examples"
+
+DEFAULT_SRC_INSTALL_EXTRA_DOCS=( "HowToUsePyparsing.html" )
+
+pyparsing_src_prepare() {
+    distutils_src_prepare
+
+    # If Python 2, remove Python 3 code prior to calling python_bytecompile().
+    if [[ $(python_get_abi) == 2.* ]]; then
+        echo ">>> Removing non-Python 2.x.x sources"
+        edo rm "pyparsing_py3.py"
+    else
+        echo ">>> Removing non-Python 3.x.x sources"
+        edo mv -f "pyparsing_py3.py" "pyparsing.py"
+        edo sed -i "pyparsing.py"\
+            -e "s~pyparsing_py3 as pyparsing~pyparsing~" \
+            -e "s~pyparsing_py3~pyparsing~"
+    fi
+
+    # In either case, the above block removed "pyparsing_py3.py". Ensure this.
+    sed -i "setup.py" -e 's~, "pyparsing_py3"~~'
+}
+
+pyparsing_src_install() {
+    distutils_src_install
+
+    if option doc; then
+        insinto "/usr/share/doc/${PNV}/pdf"
+        doins "docs"/*.pdf
+        insinto "/usr/share/doc/${PNV}/html"
+        doins "htmldoc"/*
+    fi
+
+    if option examples; then
+        insinto "/usr/share/doc/${PNV}"
+        doins -r examples
+    fi
+}
+
