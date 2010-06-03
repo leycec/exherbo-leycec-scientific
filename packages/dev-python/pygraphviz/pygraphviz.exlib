@@ -19,7 +19,7 @@ HOMEPAGE="http://networkx.lanl.gov/${PN}"
 UPSTREAM_DOCUMENTATION="${HOMEPAGE}/contents.html [[ lang = en ]]"
 
 SLOT="0"
-LICENCES="BSD"
+LICENCES="BSD-3"
 MYOPTIONS="examples"
 DEPENDENCIES="
     build:
