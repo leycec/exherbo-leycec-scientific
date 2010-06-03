@@ -44,7 +44,7 @@ REMOTE_IDS="freshmeat:${PN}"
 
 SLOT="0"
 LICENCES="GPL-2"
-MYOPTIONS+="
+MYOPTIONS="
     cups
     docbook [[ description = [ Support import of Docbook to LyX documents ] ]]
     pdf     [[ description = [ Support export of LyX to PDF documents ] ]]
@@ -55,7 +55,7 @@ MYOPTIONS+="
 
 # For a list of all hypothetical LyX dependencies, see:
 # http://www.lyx.org/AdditionalSoftware
-DEPENDENCIES+="
+DEPENDENCIES="
     build+run:
         dev-lang/python:=[>=2.5]
         dev-libs/boost
@@ -141,14 +141,17 @@ lyx_src_prepare() {
     # versionless. (As it should.) Fix it by first parsing the version of Boost
     # that is currently installed, and then forcing that version on SCons.
     echo ">>> Patching SCons makefile"
-    local BOOST_VERSION=$(grep -E '^#define BOOST_LIB_VERSION ".+"$' "/usr/include/boost/version.hpp" | awk '{gsub(/"/, "", $3); print $3}')
+    local BOOST_VERSION
+    BOOST_VERSION=$(grep -E '^#define BOOST_LIB_VERSION ".+"$' "/usr/include/boost/version.hpp" | awk '{gsub(/"/, "", $3); print $3}')
     paludis_assert_unless_nonfatal "grepping \"/usr/include/boost/version.hpp\" failed"
-    edo sed -i "SConstruct" -r \
-        -e 's~^(boost_version = \[).+(\])$~\1'"'${BOOST_VERSION}'"'\2~'
+    edo sed -r \
+        -e 's~^(boost_version = \[).+(\])$~\1'"'${BOOST_VERSION}'"'\2~' \
+        -i "SConstruct"
 
     # Install man pages to "/usr/share/man" rather than "/usr/man".
-    edo sed -i "SConstruct" -r \
-        -e "s~(man_dir = ).+$~\\1'share/man/man1'~"
+    edo sed -r \
+        -e "s~(man_dir = ).+$~\\1'share/man/man1'~" \
+        -i "SConstruct"
 }
 
 #FIXME leycec: LyX's SCons makefile fails with error when "CFLAGS" and fellows
