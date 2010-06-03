@@ -102,13 +102,10 @@ lyx_src_prepare() {
     default
 
     # Symlink the SCons makefile to the top-level build directory.
-    echo ">>> Symlinking SCons makefile"
     edo ln -s "${WORK}/development/scons/SConstruct" "${WORK}/"
 
     #FIXME leycec: "scons.exlib" could use some refactoring. This should be
     #specifiable in global scope above.
-    echo ">>> Checking SCons parameters"
-
     scons_params=(
         # Absolute path to the root directory under which LyX is installed.
         prefix="/usr"
@@ -140,7 +137,6 @@ lyx_src_prepare() {
     # SCons requires a versioned Boost installation, but Exherbo installs Boost
     # versionless. (As it should.) Fix it by first parsing the version of Boost
     # that is currently installed, and then forcing that version on SCons.
-    echo ">>> Patching SCons makefile"
     local BOOST_VERSION
     BOOST_VERSION=$(grep -E '^#define BOOST_LIB_VERSION ".+"$' "/usr/include/boost/version.hpp" | awk '{gsub(/"/, "", $3); print $3}')
     paludis_assert_unless_nonfatal "grepping \"/usr/include/boost/version.hpp\" failed"
@@ -170,7 +166,6 @@ lyx_src_install() {
     scons_src_install
     xfont_src_install
 
-    echo ">>> Installing LyX fonts"
     insinto "/usr/share/fonts/X11/${PN}/"
     doins "${IMAGE}${LYX_HOME}/fonts"/*.ttf
 
@@ -180,16 +175,13 @@ lyx_src_install() {
     local texmf_home="/usr/share/texlive/2009"
     if [[ -d "${texmf_home}" ]]; then
         local TEXMF_LATEX_DIR="${texmf_home}/texmf-dist/tex/latex"
-        echo ">>> Symlinking LyX TeX files"
         dodir                   "${TEXMF_LATEX_DIR}"
         dosym "${LYX_HOME}/tex" "${TEXMF_LATEX_DIR}/${PN}"
     fi
 }
 
 lyx_pkg_postinst() {
-    echo ">>> Caching LyX fonts and font attributes"
     xfont_pkg_postinst
-
     elog "To complete installation, run \"texhash\"."
 }
 

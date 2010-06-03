@@ -32,10 +32,8 @@ pyparsing_src_prepare() {
 
     # If Python 2, remove Python 3 code prior to calling python_bytecompile().
     if [[ $(python_get_abi) == 2.* ]]; then
-        echo ">>> Removing non-Python 2.x.x sources"
         edo rm "pyparsing_py3.py"
     else
-        echo ">>> Removing non-Python 3.x.x sources"
         edo mv -f "pyparsing_py3.py" "pyparsing.py"
         edo sed -i "pyparsing.py"\
             -e "s~pyparsing_py3 as pyparsing~pyparsing~" \
