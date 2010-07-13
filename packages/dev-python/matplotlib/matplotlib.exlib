@@ -1,0 +1,79 @@
+# Copyright 2010 Cecil Curry <leycec@gmail.com>
+# Distributed under the terms of the GNU General Public License v2
+
+# Require "sourceforge" last, so as to ensure it sets all URIs.
+require distutils [ python_dep=2.6 ] pypi sourceforge [ suffix='tar.gz' ]
+#export_exlib_phases src_compile src_test src_install
+
+BUGS_TO="leycec@gmail.com"
+
+SUMMARY="Python 2D plotting library"
+DESCRIPTION="
+matplotlib is a Python 2D plotting library producing publication quality figures
+in a variety of hardcopy formats and cross platform interactive environments. It
+can be used in Python scripts, the Python and ipython shell (ala MATLAB or
+Mathematica), web application servers, and six graphical user interface toolkits.
+It tries to make easy things easy and hard things possible by providing easy
+functions for generating plots, histograms, power spectra, bar charts,
+errorcharts, scatterplots, etc., with just a few lines of code.
+"
+
+# The "pypi" exlib provides an appropriate ${DOWNLOADS}. Redefine the rest.
+HOMEPAGE="http://${PN}.lanl.gov"
+UPSTREAM_DOCUMENTATION="${HOMEPAGE}/api [[ lang = en ]]"
+UPSTREAM_CHANGELOG="${HOMEPAGE}/api/api_changes.html [[ lang = en ]]"
+
+SLOT="0"
+LICENCES="matplotlib"
+
+#FIXME: Enable "doc" as soon as its dependencies become available.
+MYOPTIONS="qt4"
+#    examples
+#    dot  [[ description = [ Read and write Graphviz files ] ]]
+#    yaml [[ description = [ Read and write YAML files ] ]]
+#"
+#   doc
+DEPENDENCIES="
+    build:
+        dev-python/pycxx
+        dev-util/pkgconfig
+    build+run:
+        dev-python/numpy
+        dev-python/python-dateutil
+        dev-python/pytz
+        media-libs/freetype:2
+        media-libs/libpng
+        tk? ( dev-lang/python[tk] )
+    run:
+        dev-python/pyparsing
+        qt4?   ( dev-python/PyQt4 )
+"
+
+#DEFAULT_SRC_PREPARE_PATCHES=( "${FILES}/setup.py.patch" )
+
+#FIXME leycec: If I had a dollar for every failing test, I'd have several.
+#RESTRICT="test"
+
+matplotlib_src_compile() {
+    distutils_src_compile
+
+    # If building documentation, do so by running make on "doc/Makefile", which
+    # runs "sphinx-build" on "doc/", which then generates "doc/build/html". Agh!
+#   if option doc; then
+#       emake -C doc html
+#   fi
+}
+
+matplotlib_src_test() {
+    PYTHONPATH="build-$(python_get_abi)/lib" edo nosetests-$(python_get_abi)
+}
+
+matplotlib_src_install() {
+    distutils_src_install
+
+    if option examples; then
+        insinto "/usr/share/doc/${PNV}"
+        doins -r examples
+    fi
+}
+
