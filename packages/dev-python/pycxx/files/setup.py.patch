@@ -1,0 +1,28 @@
+Authors:  Cecil Curry <leycec@gmail.com>
+Upstream: no
+Synopsis: Install C++ header and source files corresponding to the slot of the
+currently selected Python interpreter. Shockingly, PyCXX's "setup.py" does not
+install these files by default, which *surely* constitutes a bug. Lastly, note
+this patch is inspired by an earlier Gentoo patch authored by Arfrever Frehtes
+Taifersar Arahesis <arfrever@gentoo.org>, "pycxx-6.1.0-setup.py.patch". Thanks,
+Arfrever: your patch was an immense help.
+--- old/setup.py	2010-05-02 19:10:27.000000000 +0000
++++ new/setup.py	2010-07-13 04:44:01.736468030 +0000
+@@ -3,10 +3,15 @@
+ from distutils.command.install import install
+ from distutils.core import setup
+ 
++pynv = "Python%s" % sys.version_info[0]
+ headers = (glob( os.path.join( "CXX","*.hxx" ) )
+-          +glob( os.path.join( "CXX","*.h" ) ))
++          +glob( os.path.join( "CXX","*.h" ) )
++          +glob( os.path.join( "CXX", pynv, "*.hxx" ) )
++          +glob( os.path.join( "CXX", pynv, "*.h" ) ))
+ sources = (glob( os.path.join( "Src", "*.cxx" ) )
+-          +glob( os.path.join( "Src", "*.c" ) ))
++          +glob( os.path.join( "Src", "*.c" ) )
++          +glob( os.path.join( "Src", pynv, "*.cxx" ) )
++          +glob( os.path.join( "Src", pynv, "*.c" ) ))
+ 
+ 
+ class my_install (install):

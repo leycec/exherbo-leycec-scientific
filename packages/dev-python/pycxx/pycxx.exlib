@@ -1,0 +1,74 @@
+# Copyright 2010 Cecil Curry <leycec@gmail.com>
+# Distributed under the terms of the GNU General Public License v2
+# Based in part upon 'pycxx-6.1.1.ebuild' from Gentoo, which is:
+#     Copyright 1999-2009 Gentoo Foundation
+
+require \
+    distutils [ python_dep=2.6 ] \
+    sourceforge [ project='cxx' suffix='tar.gz' ]
+export_exlib_phases src_unpack src_prepare src_install
+
+BUGS_TO="leycec@gmail.com"
+
+SUMMARY="A set of C++ facilities, simplifying Python extension writing"
+DESCRIPTION="
+PyCXX is a set of C++ facilities, simplifying Python extension writing. The
+PyCXX architecture decreases the probability of reference-counting error as well
+as eliminating the necessity of error return value checking. It couples Python
+with C++ as follows:
+
+    * C++ exception handling is relied on to detect errors and clean up. In
+      complicated functions, this is often a problem when writing in C. With
+      PyCXX, we let the compiler keep track of what objects need to be
+      dereferenced when an error occurs.
+    * The Standard Template Library (STL) and its many algorithms plug and play
+      with Python containers such as lists and tuples.
+    * The optional CXX/Extensions facility allows you to replace the clumsy C
+      tables with objects and method calls defining your modules and extension
+      objects.
+"
+
+UPSTREAM_DOCUMENTATION="http://cxx.sourceforge.net/PyCXX-Python3.html [[ lang = en ]]"
+SLOT="0"
+LICENCES="PyCXX"
+MYOPTIONS="doc examples"
+
+DEFAULT_SRC_PREPARE_PATCHES=( "${FILES}/setup.py.patch" )
+
+pycxx_src_unpack() {
+    default
+
+    # Remove all C++ headers and source corresponding to different Python slots.
+    # Technically, this is unnecessary. In practice, however, this safely
+    # ensures that any attempt by the underlying "setup.py" script to install
+    # non-conforming headers or source raises an immediate error.
+    local python_major_version=$(python_get_abi)
+          python_major_version=${python_major_version:0:1}
+    edo rm -rf "${WORK}/"{CXX,Src}/!(Python${python_major_version})/
+}
+
+pycxx_src_prepare() {
+    distutils_src_prepare
+
+    # Remove all references to the current Python slot in "#include" statements
+    # in remaining C++ headers. Technically, this is unnecessary for the Python
+    # 3.x.x headers -- but, in that case, it does no harm.
+    edo sed -e '/^#include/s~Python[0-9]/~~' -i 'CXX/'*/*.hxx
+}
+
+pycxx_src_install() {
+    distutils_src_install
+
+    local pycxx_doc_dir="/usr/share/doc/${PNVR}"
+
+    if option doc; then
+        insinto "${pycxx_doc_dir}/html"
+        doins -r 'Doc'/*
+    fi
+
+    if option examples; then
+        insinto "${pycxx_doc_dir}/examples"
+        doins -r 'Demo'/*
+    fi
+}
+
