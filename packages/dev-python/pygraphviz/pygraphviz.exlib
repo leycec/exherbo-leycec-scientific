@@ -44,8 +44,8 @@ pygraphviz_src_install() {
     distutils_src_install
 
     if option examples; then
-        insinto "/usr/share/doc/${PNV}"
-        doins -r examples
+        docinto   examples
+        doins -r 'examples'
     fi
 }
 

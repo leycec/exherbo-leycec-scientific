@@ -1,11 +1,8 @@
 # Copyright 2010 Cecil Curry <leycec@gmail.com>
 # Distributed under the terms of the GNU General Public License v2
 
-# Based in part upon 'dreampie-1.0.2.ebuild' from Gentoo, which is:
-#     Copyright 1999-2010 Gentoo Foundation
-
 require distutils [ python_dep=2.6 ] pypi
-export_exlib_phases src_test src_install
+export_exlib_phases src_compile src_test src_install
 
 BUGS_TO="leycec@gmail.com"
 
@@ -26,21 +23,38 @@ UPSTREAM_DOCUMENTATION="${HOMEPAGE}/contents.html [[ lang = en ]]"
 
 SLOT="0"
 LICENCES="LGPL-2.1"
+
+#FIXME: Enable "doc" as soon as its dependencies are available.
 MYOPTIONS="
     examples
     dot  [[ description = [ Read and write Graphviz files ] ]]
     yaml [[ description = [ Read and write YAML files ] ]]
 "
+#   doc
 DEPENDENCIES="
     run:
         dot?  ( dev-python/pygraphviz )
         yaml? ( dev-python/PyYAML )
 "
+#       doc?  (
+#           dev-python/matplotlib
+#           dev-python/sphinx
+#       )
 
 DEFAULT_SRC_PREPARE_PATCHES=( "${FILES}/setup.py.patch" )
 
 #FIXME leycec: If I had a dollar for every failing test, I'd have several.
 RESTRICT="test"
+
+networkx_src_compile() {
+    distutils_src_compile
+
+    # If building documentation, do so by running make on "doc/Makefile", which
+    # runs "sphinx-build" on "doc/", which then generates "doc/build/html". Agh!
+#   if option doc; then
+#       emake -C doc html
+#   fi
+}
 
 networkx_src_test() {
     PYTHONPATH="build-$(python_get_abi)/lib" edo nosetests-$(python_get_abi)
@@ -49,9 +63,10 @@ networkx_src_test() {
 networkx_src_install() {
     distutils_src_install
 
-    if option examples; then
-        insinto "/usr/share/doc/${PNV}"
-        doins -r examples
-    fi
+    #FIXME: Does not work with the "scm" version. Please fix.
+#   if option examples; then
+#       docinto 'examples'
+#       dodoc -r 'examples'
+#   fi
 }
 
