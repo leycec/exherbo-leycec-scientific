@@ -1,0 +1,24 @@
+Authors:  Cecil Curry <leycec@gmail.com>
+Upstream: no
+Synopsis: Find matplotlib data and configuration files in standard paths.
+--- old/lib/matplotlib/__init__.py	2010-07-14 03:57:57.618411303 +0000
++++ new/lib/matplotlib/__init__.py	2010-07-14 04:16:20.540764080 +0000
+@@ -485,7 +485,7 @@
+             raise RuntimeError('Path in environment MATPLOTLIBDATA not a directory')
+         return path
+ 
+-    path = os.sep.join([os.path.dirname(__file__), 'mpl-data'])
++    path = '/usr/share/matplotlib/mpl-data'
+     if os.path.isdir(path):
+         return path
+ 
+@@ -596,8 +596,7 @@
+     if os.path.exists(fname): return fname
+ 
+ 
+-    path =  get_data_path() # guaranteed to exist or raise
+-    fname = os.path.join(path, 'matplotlibrc')
++    fname = '/etc/matplotlib/matplotlibrc'
+     if not os.path.exists(fname):
+         warnings.warn('Could not find matplotlibrc; using defaults')
+     return fname

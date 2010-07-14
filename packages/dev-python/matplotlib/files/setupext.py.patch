@@ -1,0 +1,82 @@
+Authors:  Cecil Curry <leycec@gmail.com>
+Upstream: no
+Synopsis: Do not import the Python "gtk" or "Tkinter" modules as their top-level
+"__init__.py" files attempt to open X11 connections.
+--- old/setupext.py	2010-07-06 14:44:15.000000000 +0000
++++ new/setupext.py	2010-07-14 05:31:02.541664644 +0000
+@@ -584,22 +584,8 @@
+ 
+ def check_for_gtk():
+     'check for the presence of pygtk'
+-    gotit = False
++    gotit = True
+     explanation = None
+-    try:
+-        import gtk
+-    except ImportError:
+-        explanation = 'Building for Gtk+ requires pygtk; you must be able to "import gtk" in your build/install environment'
+-    except RuntimeError:
+-        explanation = 'pygtk present but import failed'
+-    else:
+-        version = (2,2,0)
+-        if gtk.pygtk_version < version:
+-            explanation = "Error: GTK backend requires PyGTK %d.%d.%d (or later), " \
+-                  "%d.%d.%d was detected." % (
+-                version + gtk.pygtk_version)
+-        else:
+-            gotit = True
+ 
+     if gotit:
+         module = Extension('test', [])
+@@ -619,22 +605,15 @@
+             pygobject_version = ver2str(gobject.pygobject_version)
+         else:
+             pygobject_version = '[pre-pygobject]'
+-        print_status("Gtk+", "gtk+: %s, glib: %s, pygtk: %s, pygobject: %s" %
+-                     (ver2str(gtk.gtk_version), ver2str(gobject.glib_version),
+-                      ver2str(gtk.pygtk_version), pygobject_version))
++        print_status("Gtk+", "glib: %s, pygobject: %s" %
++                     (ver2str(gobject.glib_version),
++                      pygobject_version))
+     else:
+         print_status("Gtk+", "no")
+ 
+     if explanation is not None:
+         print_message(explanation)
+ 
+-    # Switch off the event loop for PyGTK >= 2.15.0
+-    if gotit:
+-        try:
+-            gtk.set_interactive(False)
+-        except AttributeError: # PyGTK < 2.15.0
+-            pass
+-
+     return gotit
+ 
+ def add_pygtk_flags(module):
+@@ -861,10 +840,8 @@
+     import Tkinter
+     tcl_lib_dir = ''
+     tk_lib_dir = ''
+-    # First try to open a Tk window (requires a running X server)
+-    try:
+-        tk = Tkinter.Tk()
+-    except Tkinter.TclError:
++
++    if True:
+         # Next, start Tcl interpreter without opening a Tk window (no need for X server)
+         # This feature is available in python version 2.4 and up
+         try:
+@@ -881,12 +858,6 @@
+             tk_lib_dir = os.path.join(head, tail)
+             if not os.path.exists(tk_lib_dir):
+                 tk_lib_dir = tcl_lib_dir.replace('Tcl', 'Tk').replace('tcl', 'tk')
+-    else:
+-        # Obtain Tcl and Tk locations from Tk widget
+-        tk.withdraw()
+-        tcl_lib_dir = str(tk.getvar('tcl_library'))
+-        tk_lib_dir = str(tk.getvar('tk_library'))
+-        tk.destroy()
+ 
+     # Save directories and version string to cache
+     TCL_TK_CACHE = tcl_lib_dir, tk_lib_dir, str(Tkinter.TkVersion)[:3]
