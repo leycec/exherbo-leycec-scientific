@@ -1,0 +1,15 @@
+Authors:  Cecil Curry <leycec@gmail.com>
+Upstream: no
+Synopsis: Use system-wide zoneinfo data, rather than that bundled with dateutil.
+--- old/dateutil/tz.py	2008-02-28 01:45:41.000000000 +0000
++++ new/dateutil/tz.py	2010-07-13 19:59:49.153000908 +0000
+@@ -930,9 +930,6 @@
+                     except OSError:
+                         pass
+                 if not tz:
+-                    from dateutil.zoneinfo import gettz
+-                    tz = gettz(name)
+-                if not tz:
+                     for c in name:
+                         # name must have at least one offset to be a tzstr
+                         if c in "0123456789":

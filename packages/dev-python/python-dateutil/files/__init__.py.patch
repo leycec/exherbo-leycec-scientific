@@ -1,0 +1,17 @@
+Authors:  Cecil Curry <leycec@gmail.com>
+Upstream: no
+Synopsis: Use system-wide zoneinfo data, rather than that bundled with pytz.
+This patch is inspired by an earlier Gentoo patch authored by Arfrever Frehtes
+Taifersar Arahesis <arfrever@gentoo.org>, "pytz-2009j-zoneinfo.patch".
+--- old/pytz/__init__.py	2010-04-16 12:55:52.000000000 +0000
++++ new/pytz/__init__.py	2010-07-13 19:04:37.376690565 +0000
+@@ -54,8 +54,7 @@
+     for part in name_parts:
+         if part == os.path.pardir or os.path.sep in part:
+             raise ValueError('Bad path segment: %r' % part)
+-    filename = os.path.join(os.path.dirname(__file__),
+-                            'zoneinfo', *name_parts)
++    filename = os.path.join('/usr/share/zoneinfo', *name_parts)
+     if not os.path.exists(filename) and resource_stream is not None:
+         # http://bugs.launchpad.net/bugs/383171 - we avoid using this
+         # unless absolutely necessary to help when a broken version of
