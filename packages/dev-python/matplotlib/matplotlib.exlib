@@ -70,17 +70,13 @@ configobj = False
 enthought.traits = False
 [gui_support]
 macosx = False
-$(matplotlib_option_setup_cfg cairo)
-$(matplotlib_option_setup_cfg gtk)
-$(matplotlib_option_setup_cfg qt4)
-$(matplotlib_option_setup_cfg tk)
 wxagg = False
 EOF
 
     # Disable undesired graphics backends.
-    local matplotlib_backend
-    for   matplotlib_backend in cairo gtk qt4 tk ; do
-        matplotlib_option_setup_py "${matplotlib_backend}"
+    local matplotlib_gui_backend
+    for   matplotlib_gui_backend in cairo gtk qt4 tk ; do
+        matplotlib_toggle_gui_backend "${matplotlib_gui_backend}"
     done
 
     # Disable unsupported graphics backends.
@@ -111,33 +107,30 @@ EOF
     edo ln -s "/usr/share/python$(python_get_abi)/CXX/"*   "CXX/"
 }
 
-# char *matplotlib_option_setup_cfg(char *option_name, char *echo_name = NULL)
+# void matplotlib_toggle_gui_backend(
+#     char *option_name, char *backend_name = option_name)
 #
-# Echo a string suitable for enabling or disabling the option corresponding to
-# the passed option name in "setup.cfg", above. If the echo name is passed, then
-# that is echoed rather than the passed option name.
-matplotlib_option_setup_cfg() {
+# Toggle the matplotlib graphs backend corresponding to the passed option and
+# backend name. The latter defaults to the former if not passed. Specifically:
+#
+# * If the passed option is enabled, append a line to "setup.cfg" enabling the
+#   passed backend.
+# * If the passed option is disabled, append a line to "setup.cfg" disabling the
+#   passed backend as well as substituting all instances of
+#   "check_for_${backend_name}()" in "setup.py" with False. 
+matplotlib_toggle_gui_backend() {
     local option_name="${1}"
-    local echo_name="${2}"
-    [[ -n "${echo_name}" ]] || echo_name="${option_name}"
+    local backend_name="${2}"
+    [[ -n "${backend_name}" ]] || backend_name="${option_name}"
 
-    if option "${option_name}"
-    then echo "${echo_name} = True" ; echo "${echo_name}agg = True"
-    else echo "${echo_name} = False"; echo "${echo_name}agg = False"
+    if option "${option_name}"; then
+        edo echo "${backend_name} = True"    >> 'setup.cfg'
+        edo echo "${backend_name}agg = True" >> 'setup.cfg'
+    else
+        edo echo "${backend_name} = False"    >> 'setup.cfg'
+        edo echo "${backend_name}agg = False" >> 'setup.cfg'
+        edo sed -e 's~check_for_'${backend_name}'()~False~' -i 'setup.py'
     fi
-}
-
-# void matplotlib_option_setup_py(char *option_name, char *sed_pattern = NULL)
-#
-# Substitute the string matching the passed sed pattern in "setup.py" with
-# False, if the the option corresponding to the passed option name is disabled.
-# If the sed pattern is not passed, it defaults to "check_for_${option_name}()".
-matplotlib_option_setup_py() {
-    local option_name="${1}"
-    local sed_pattern="${2}"
-    [[ -n "${sed_pattern}" ]] || sed_pattern="check_for_${option_name}()"
-    option "${option_name}" ||
-        edo sed -e 's~'"${sed_pattern}"'~False~' -i 'setup.py'
 }
 
 matplotlib_src_test() {
