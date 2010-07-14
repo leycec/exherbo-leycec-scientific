@@ -18,7 +18,7 @@ optionally includes simple examples for parsing SQL, CORBA IDL, and 4-function
 math. 
 "
 
-HOMEPAGE="http://${PN}.wikispaces.com"
+HOMEPAGE="http://pyparsing.wikispaces.com"
 UPSTREAM_DOCUMENTATION="http://crpppc19.epfl.ch/doc/python-${PN}/htmldoc/frames.html [[ lang = en ]]"
 
 SLOT="0"

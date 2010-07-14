@@ -15,7 +15,7 @@ PyGraphviz is independent from NetworkX but implements a similar interface.
 "
 
 # The "pypi" exlib provides an appropriate ${DOWNLOADS}. Redefine the rest.
-HOMEPAGE="http://networkx.lanl.gov/${PN}"
+HOMEPAGE="http://networkx.lanl.gov/pygraphviz"
 UPSTREAM_DOCUMENTATION="${HOMEPAGE}/contents.html [[ lang = en ]]"
 
 SLOT="0"

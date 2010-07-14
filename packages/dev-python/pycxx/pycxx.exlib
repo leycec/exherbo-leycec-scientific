@@ -10,9 +10,9 @@ export_exlib_phases src_unpack src_prepare src_install
 
 BUGS_TO="leycec@gmail.com"
 
-SUMMARY="A set of C++ facilities, simplifying Python extension writing"
+SUMMARY="A set of C++ facilities simplifying Python extension writing"
 DESCRIPTION="
-PyCXX is a set of C++ facilities, simplifying Python extension writing. The
+PyCXX is a set of C++ facilities simplifying Python extension writing. The
 PyCXX architecture decreases the probability of reference-counting error as well
 as eliminating the necessity of error return value checking. It couples Python
 with C++ as follows:

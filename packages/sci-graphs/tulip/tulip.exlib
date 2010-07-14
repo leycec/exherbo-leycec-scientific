@@ -14,7 +14,7 @@ the design, development, and distribution of interactive visualization
 algorithms, plugins, and applications.
 "
 
-HOMEPAGE="http://${PN}.labri.fr/TulipDrupal"
+HOMEPAGE="http://tulip.labri.fr/TulipDrupal"
 UPSTREAM_DOCUMENTATION="${HOMEPAGE}?q=developer-handbook [[ lang = en ]]"
 
 SLOT="0"

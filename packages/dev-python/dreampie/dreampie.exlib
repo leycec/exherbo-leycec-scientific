@@ -22,7 +22,7 @@ and run it instantly.
 "
 
 # Inclusion of the "launchpad" exlib, above, overwrites the HOMEPAGE. Redeclare.
-HOMEPAGE="http://${PN}.sourceforge.net"
+HOMEPAGE="http://dreampie.sourceforge.net"
 
 SLOT="0"
 LICENCES="GPL-3"

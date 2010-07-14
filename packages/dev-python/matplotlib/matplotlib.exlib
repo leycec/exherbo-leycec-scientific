@@ -1,9 +1,11 @@
 # Copyright 2010 Cecil Curry <leycec@gmail.com>
 # Distributed under the terms of the GNU General Public License v2
+# Based in part upon 'matplotlib-1.0.0.ebuild' from Gentoo, which is:
+#     Copyright 1999-2010 Gentoo Foundation
 
 # Require "sourceforge" last, so as to ensure it sets all URIs.
 require distutils [ python_dep=2.6 ] pypi sourceforge [ suffix='tar.gz' ]
-#export_exlib_phases src_compile src_test src_install
+export_exlib_phases src_prepare src_test src_install
 
 BUGS_TO="leycec@gmail.com"
 
@@ -18,62 +20,185 @@ functions for generating plots, histograms, power spectra, bar charts,
 errorcharts, scatterplots, etc., with just a few lines of code.
 "
 
-# The "pypi" exlib provides an appropriate ${DOWNLOADS}. Redefine the rest.
-HOMEPAGE="http://${PN}.lanl.gov"
-UPSTREAM_DOCUMENTATION="${HOMEPAGE}/api [[ lang = en ]]"
-UPSTREAM_CHANGELOG="${HOMEPAGE}/api/api_changes.html [[ lang = en ]]"
+UPSTREAM_DOCUMENTATION="${HOMEPAGE}/contents.html [[ lang = en ]]"
+UPSTREAM_CHANGELOG="${HOMEPAGE}/users/whats_new.html [[ lang = en ]]"
 
 SLOT="0"
 LICENCES="matplotlib"
+MYOPTIONS="examples cairo gtk qt4 tk"
 
-#FIXME: Enable "doc" as soon as its dependencies become available.
-MYOPTIONS="qt4"
-#    examples
-#    dot  [[ description = [ Read and write Graphviz files ] ]]
-#    yaml [[ description = [ Read and write YAML files ] ]]
-#"
-#   doc
+#FIXME: Unbundle:
+# * The AFM-format fonts in
+#   "/lib/matplotlib/mpl-data/fonts/"{afm,pdfcorefonts} into new exheres.
+# * The TTF-format fonts in
+#   "lib/matplotlib/mpl-data/fonts/ttf/"STIX* into a stix-fonts exheres,
+#   "lib/matplotlib/mpl-data/fonts/ttf/"Vera* into a bitstream-vera exheres,
+#   "lib/matplotlib/mpl-data/fonts/ttf/"cm* into a computer-modern exheres.
 DEPENDENCIES="
     build:
         dev-python/pycxx
-        dev-util/pkgconfig
+        dev-util/pkg-config
     build+run:
         dev-python/numpy
         dev-python/python-dateutil
         dev-python/pytz
         media-libs/freetype:2
         media-libs/libpng
-        tk? ( dev-lang/python[tk] )
+        gtk? ( gnome-bindings/pygtk )
+        tk?  ( dev-lang/python[tk] )
     run:
         dev-python/pyparsing
+        cairo? ( dev-python/pycairo )
         qt4?   ( dev-python/PyQt4 )
 "
 
-#DEFAULT_SRC_PREPARE_PATCHES=( "${FILES}/setup.py.patch" )
+DEFAULT_SRC_PREPARE_PATCHES=(
+    "${FILES}/setupext.py.patch"
+    "${FILES}/lib_matplotlib_init.py.patch"
+)
 
-#FIXME leycec: If I had a dollar for every failing test, I'd have several.
-#RESTRICT="test"
+matplotlib_src_prepare() {
+    distutils_src_prepare
 
-matplotlib_src_compile() {
-    distutils_src_compile
+    # Make setup.cfg. Force all entries under "provide_packages" to False to
+    # prevent matplotlib's "setup.py" from installing prebundled packages.
+    edo cat > 'setup.cfg' <<-EOF 
+[provide_packages]
+pytz = False
+dateutil = False
+configobj = False
+enthought.traits = False
+[gui_support]
+macosx = False
+$(matplotlib_option_setup_cfg cairo)
+$(matplotlib_option_setup_cfg gtk)
+$(matplotlib_option_setup_cfg qt4)
+$(matplotlib_option_setup_cfg tk)
+wxagg = False
+EOF
 
-    # If building documentation, do so by running make on "doc/Makefile", which
-    # runs "sphinx-build" on "doc/", which then generates "doc/build/html". Agh!
-#   if option doc; then
-#       emake -C doc html
-#   fi
+    # Disable undesired graphics backends.
+    local matplotlib_backend
+    for   matplotlib_backend in cairo gtk qt4 tk ; do
+        matplotlib_option_setup_py "${matplotlib_backend}"
+    done
+
+    # Disable unsupported graphics backends.
+    edo sed -e 's~check_for_fltk()~False~' \
+            -e 's~check_for_qt()~False~' \
+            -e 's~check_for_wx()~False~' \
+            -i 'setup.py'
+
+    # Do not install configuration files to the data directory.
+    edo sed -e "/'mpl-data\/matplotlibrc',/d" \
+            -e "/'mpl-data\/matplotlib.conf',/d" \
+            -i 'setup.py'
+
+    # Force matplotlib to get configuration and data files from standard paths.
+    edo sed -e 's~path =  get_data_path()~path = "/etc/matplotlib"~' \
+            -e 's~os.path.dirname(__file__)~"/usr/share/matplotlib"~g'  \
+            -i 'lib/matplotlib/__init__.py'
+
+    # Replace references to the bundled pyparsing.
+    edo sed -e 's~matplotlib\.pyparsing~pyparsing~g' \
+            -i 'lib/matplotlib/'{mathtext,fontconfig_pattern}.py
+
+    # Remove bundled libraries.
+    edo rm -rf "CXX/"* "lib/"{dateutil,pytz,matplotlib/pyparsing.py}
+
+    # Symlink in PyCXX headers and sources required for compilation.
+    edo ln -s "/usr/include/python$(python_get_abi)/CXX/"* "CXX/"
+    edo ln -s "/usr/share/python$(python_get_abi)/CXX/"*   "CXX/"
+}
+
+# char *matplotlib_option_setup_cfg(char *option_name, char *echo_name = NULL)
+#
+# Echo a string suitable for enabling or disabling the option corresponding to
+# the passed option name in "setup.cfg", above. If the echo name is passed, then
+# that is echoed rather than the passed option name.
+matplotlib_option_setup_cfg() {
+    local option_name="${1}"
+    local echo_name="${2}"
+    [[ -n "${echo_name}" ]] || echo_name="${option_name}"
+
+    if option "${option_name}"
+    then echo "${echo_name} = True" ; echo "${echo_name}agg = True"
+    else echo "${echo_name} = False"; echo "${echo_name}agg = False"
+    fi
+}
+
+# void matplotlib_option_setup_py(char *option_name, char *sed_pattern = NULL)
+#
+# Substitute the string matching the passed sed pattern in "setup.py" with
+# False, if the the option corresponding to the passed option name is disabled.
+# If the sed pattern is not passed, it defaults to "check_for_${option_name}()".
+matplotlib_option_setup_py() {
+    local option_name="${1}"
+    local sed_pattern="${2}"
+    [[ -n "${sed_pattern}" ]] || sed_pattern="check_for_${option_name}()"
+    option "${option_name}" ||
+        edo sed -e 's~'"${sed_pattern}"'~False~' -i 'setup.py'
 }
 
 matplotlib_src_test() {
-    PYTHONPATH="build-$(python_get_abi)/lib" edo nosetests-$(python_get_abi)
+    edo pushd 'examples/tests'
+    local matplotlib_test_script='backend_driver.py'
+
+    # Kill all tests attempting to open remote network connections.
+    local bad_test bad_tests=(
+        # Bad tests in "pylab_examples/".
+        date_demo1
+        date_demo2
+        date_index_formatter
+        finance_demo
+        image_demo2
+        mri_demo
+        mri_with_eeg
+        plotfile_demo
+        scatter_demo2
+        stock_demo
+        # Bad tests in "api/".
+        date_demo
+        watermark_image
+    )
+    for bad_test in "${bad_tests[@]}"; do
+        edo sed -e "/'${bad_test}\.py',/d" -i "${matplotlib_test_script}"
+    done
+
+    # Run remaining tests.
+    PYTHONPATH="build-$(python_get_abi)/lib" \
+        edo "${PYTHON}" "${matplotlib_test_script}" agg
+    edo popd
 }
 
 matplotlib_src_install() {
     distutils_src_install
 
+    # Move installed data from the Python sitedir to standard directories.
+    local matplotlib_site_dir="${IMAGE}$(python_get_sitedir)/${PN}"
+    local matplotlib_data_dirs=(
+        "${matplotlib_site_dir}/"{mpl-data,backends/Matplotlib.nib} )
+    insinto "/usr/share/${PN}"
+    doins -r   "${matplotlib_data_dirs[@]}"
+    edo rm -rf "${matplotlib_data_dirs[@]}"
+
+    # Install configuration files.
+    local mpl_data_dir='lib/matplotlib/mpl-data/'
+    insinto '/etc/matplotlib'
+    doins "${mpl_data_dir}/matplotlibrc" \
+          "${mpl_data_dir}/matplotlib.conf"
+
+    #FIXME: Enable after implementing document generation.
+#   if option doc; then
+#       docinto pdf
+#       dodoc 'doc/build/latex/Matplotlib.pdf'
+#       insinto "/usr/share/doc/${PNVR}"
+#       doins -r 'doc/build/html'
+#   fi
+
     if option examples; then
-        insinto "/usr/share/doc/${PNV}"
-        doins -r examples
+        docinto ''
+        dodoc -r 'examples'
     fi
 }
 

@@ -37,7 +37,7 @@ languages like Chinese, Japanese, and Korean, and bidirectional writing.
 
 #FIXME leycec: add mirrors as listed at the bottom of:
 #    http://www.lyx.org/Download
-HOMEPAGE="http://www.${PN}.org"
+HOMEPAGE="http://www.lyx.org"
 DOWNLOADS="ftp://ftp.devel.${PN}.org/pub/${PN}/stable/${PNV}.tar.bz2"
 UPSTREAM_DOCUMENTATION="http://wiki.${PN}.org/LyX/Documentation [[ lang = en ]]"
 REMOTE_IDS="freshmeat:${PN}"
