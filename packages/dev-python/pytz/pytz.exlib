@@ -1,0 +1,50 @@
+# Copyright 2010 Cecil Curry <leycec@gmail.com>
+# Distributed under the terms of the GNU General Public License v2
+# Based in part upon 'pytz-2010h.ebuild' from Gentoo, which is:
+#     Copyright 1999-2010 Gentoo Foundation
+
+# Require "pypi" last, as the pytz DOWNLOAD is hosted there.
+require distutils [ python_dep=2.6 ] sourceforge pypi
+export_exlib_phases src_prepare src_test
+
+BUGS_TO="leycec@gmail.com"
+
+SUMMARY="Python conversion of the Olson tz (timezone) database"
+DESCRIPTION="
+pytz brings the Olson tz database into Python. This library allows accurate and
+cross platform timezone calculations using Python 2.3 or higher. It also solves
+the issue of ambiguous times at the end of daylight savings. Amost all of the
+Olson timezones are supported.
+"
+
+# pytz's sourceforge homepage URI is also its documentation URI.
+HOMEPAGE="http://pytz.sourceforge.net"
+UPSTREAM_DOCUMENTATION="${HOMEPAGE} [[ lang = en ]]"
+
+SLOT="0"
+LICENCES="MIT"
+DEPENDENCIES="
+    build+run:
+        sys-libs/timezone-data[>=${PV}]
+"
+
+DEFAULT_SRC_PREPARE_PATCHES=( "${FILES}/__init__.py.patch" )
+DEFAULT_SRC_INSTALL_EXTRA_DOCS=( "CHANGES.txt" )
+
+# Relative path under "${WORK}" to pytz's unit test script.
+PYTZ_TEST_SCRIPT='pytz/tests/test_tzinfo.py'
+
+pytz_src_prepare() {
+    distutils_src_prepare
+
+    # Do not install pytz's bundled zoneinfo data; use "timezone-data", instead.
+    edo sed -e '/package_data=package_data/d' -i 'setup.py'
+
+    # Fix the unit tests to import the pytz package as a fake module named pytz.
+    edo sed -e 's~^import pytz$~import pytz as pytz~' -i "${PYTZ_TEST_SCRIPT}"
+}
+
+pytz_src_test() {
+    PYTHONPATH="build-$(python_get_abi)/lib" "${PYTHON}" "${PYTZ_TEST_SCRIPT}"
+}
+
