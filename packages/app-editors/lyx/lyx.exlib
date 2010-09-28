@@ -4,6 +4,7 @@
 # --------------------( SEE ALSO                           )--------------------
 # * "LyX Build Systems." 
 #   http://wiki.lyx.org/Devel/BuildSystems
+#
 # --------------------( TODO                               )--------------------
 # * LyX requires TeX Live 2009. Sadly, due to the extreme complexities of
 #   its installation, Exherbo has no such exheres. Thus, this exheres assumes
@@ -35,9 +36,8 @@ supports right-to-left languages like Arabic, Persian, and Hebrew, ideographic
 languages like Chinese, Japanese, and Korean, and bidirectional writing.
 "
 
-#FIXME leycec: add mirrors as listed at the bottom of:
-#    http://www.lyx.org/Download
-HOMEPAGE="http://www.lyx.org"
+#FIXME: add mirrors as listed at the bottom of http://www.lyx.org/Download
+HOMEPAGE="http://www.${PN}.org"
 DOWNLOADS="ftp://ftp.devel.${PN}.org/pub/${PN}/stable/${PNV}.tar.bz2"
 UPSTREAM_DOCUMENTATION="http://wiki.${PN}.org/LyX/Documentation [[ lang = en ]]"
 REMOTE_IDS="freshmeat:${PN}"
@@ -46,19 +46,24 @@ SLOT="0"
 LICENCES="GPL-2"
 MYOPTIONS="
     cups
-    docbook [[ description = [ Support import of Docbook to LyX documents ] ]]
-    pdf     [[ description = [ Support export of LyX to PDF documents ] ]]
-    dot     [[ description = [ Support usage of Graphviz dot files ] ]]
-    dia     [[ description = [ Support usage of Dia diagrams ] ]]
+    docbook [[ description = [ Support Docbook import ] ]]
+    pdf     [[ description = [ Support PDF export ] ]]
+    rtf     [[ description = [ Support RTF export ] ]]
+    dot     [[ description = [ Support use of Graphviz DOT files ] ]]
+    dia     [[ description = [ Support use of Dia files ] ]]
+    svg     [[ description = [ Support use of SVG files ] ]]
     spell   [[ description = [ Support aspell checking ] ]]
 "
+
+#FIXME: when available, add the following optional "build+run" dependency:
+#    app-text/aiksaurus 
 
 # For a list of all hypothetical LyX dependencies, see:
 # http://www.lyx.org/AdditionalSoftware
 DEPENDENCIES="
     build+run:
         dev-lang/python:=[>=2.5]
-        dev-libs/boost
+        dev-libs/boost[>=1.34]
         dev-libs/libxml2
         media-libs/fontconfig
         media-libs/freetype:2
@@ -67,12 +72,16 @@ DEPENDENCIES="
         x11-libs/qt:4[>=4.2.2]
         spell? ( app-spell/aspell )
     run:
-        media-gfx/ImageMagick
+        || ( media-gfx/GraphicsMagick
+             media-gfx/ImageMagick )
         cups?    ( net-print/cups )
         dia?     ( app-diagram/dia )
         docbook? ( app-text/sgmltools-lite )
         dot?     ( media-gfx/graphviz )
         pdf?     ( app-text/ghostscript )
+        rtf?     ( app-text/unrtf )
+        svg?     ( || ( gnome-base/librsvg
+                        media-gfx/inkscape ) )
 "
 #       app-text/texlive
 
@@ -80,6 +89,11 @@ DEFAULT_SRC_PREPARE_PATCHES=( "${FILES}/scons_utils.py.patch" )
 
 # Absolute path to the directory under which LyX installs itself.
 LYX_HOME="/usr/share/lyx"
+
+# Absolute path to the directory under which TexLive 2010 has already been
+# installed. If not found, the "src_install" phase for this exheres does not
+# make TeX-specific symlinks - which is O.K. These symlinks are not critical.
+TEXMF_HOME="/usr/share/texlive/2010"
 
 # The conventional TeX font cache lives at "/var/cache/fonts". Since writing to
 # that path breaks path sandboxing, write to a temporary path. (Note this is not
@@ -92,7 +106,7 @@ export VARTEXFONTS="${TEMP}/font_cache"
 export CC=
 export CXX=
 
-# SCons makefiles use non-standard flag names. Who thought that was a good idea?
+# SCons makefiles use nonstandard flag names. Who thought that was a good idea?
 export CCFLAGS="${CFLAGS}"
 export CPPFLAGS="${CXXFLAGS}"
 export LINKFLAGS="${LDFLAGS}"
@@ -137,11 +151,11 @@ lyx_src_prepare() {
     # SCons requires a versioned Boost installation, but Exherbo installs Boost
     # versionless. (As it should.) Fix it by first parsing the version of Boost
     # that is currently installed, and then forcing that version on SCons.
-    local BOOST_VERSION
-    BOOST_VERSION=$(grep -E '^#define BOOST_LIB_VERSION ".+"$' "/usr/include/boost/version.hpp" | awk '{gsub(/"/, "", $3); print $3}')
-    paludis_assert_unless_nonfatal "grepping \"/usr/include/boost/version.hpp\" failed"
+    local boost_version boost_version_file="/usr/include/boost/version.hpp"
+    boost_version=$(grep -E '^#define BOOST_LIB_VERSION ".+"$' "${boost_version_file}" | awk '{gsub(/"/, "", $3); print $3}')
+    paludis_assert_unless_nonfatal "grepping \"${boost_version_file}\" failed"
     edo sed -r \
-        -e 's~^(boost_version = \[).+(\])$~\1'"'${BOOST_VERSION}'"'\2~' \
+        -e 's~^(boost_version = \[).+(\])$~\1'"'${boost_version}'"'\2~' \
         -i "SConstruct"
 
     # Install man pages to "/usr/share/man" rather than "/usr/man".
@@ -150,8 +164,8 @@ lyx_src_prepare() {
         -i "SConstruct"
 }
 
-#FIXME leycec: LyX's SCons makefile fails with error when "CFLAGS" and fellows
-#are defined. Patch "scons.exlib" to stop this, later.
+#FIXME: LyX's SCons makefile fails with error when "CFLAGS" and fellows are
+#defined. Patch "scons.exlib" to stop this, later.
 lyx_src_compile() {
     escons \
         --config=cache \
@@ -159,7 +173,7 @@ lyx_src_compile() {
         "${SCONS_SRC_COMPILE_PARAMS[@]}"
 }
 
-#FIXME leycec: LyX's SCons makefile compiles and installs docs and examples by
+#FIXME: LyX's SCons makefile compiles and installs docs and examples by
 #default. Make this conditional per usual.
 lyx_src_install() {
     # "scons.exlib" does not play nicely with "xfont.exlib". Make sure they do.
@@ -169,12 +183,8 @@ lyx_src_install() {
     insinto "/usr/share/fonts/X11/${PN}/"
     doins "${IMAGE}${LYX_HOME}/fonts"/*.ttf
 
-    #FIXME leycec: Extreme hack assuming TeX Live 2009 has been installed to:
-    #"/usr/share/texlive/2009". If not, this does not create TeX-specific
-    #symlinks -- which is O.K., as these symlinks are not critical files.
-    local texmf_home="/usr/share/texlive/2009"
-    if [[ -d "${texmf_home}" ]]; then
-        local TEXMF_LATEX_DIR="${texmf_home}/texmf-dist/tex/latex"
+    if [[ -d "${TEXMF_HOME}" ]]; then
+        local TEXMF_LATEX_DIR="${TEXMF_HOME}/texmf-dist/tex/latex"
         dodir                   "${TEXMF_LATEX_DIR}"
         dosym "${LYX_HOME}/tex" "${TEXMF_LATEX_DIR}/${PN}"
     fi
