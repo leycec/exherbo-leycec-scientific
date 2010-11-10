@@ -44,8 +44,9 @@ pygraphviz_src_install() {
     distutils_src_install
 
     if option examples; then
-        docinto   examples
-        doins -r 'examples'
+        echo ">>> examples!"
+        docinto examples
+        dodoc "${WORK}/examples/"*
     fi
 }
 

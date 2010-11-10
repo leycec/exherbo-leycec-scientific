@@ -3,12 +3,10 @@
 # Based in part upon 'dreampie-1.0.2.ebuild' from Gentoo, which is:
 #     Copyright 1999-2010 Gentoo Foundation
 
-# Dreampie hosts its front-facing website with Sourceforge, but its
-# download with Launchpad. Thus, this order of exlibs is important.
+# Dreampie hosts its front-facing website with Sourceforge and its
+# download with Launchpad. (Thus, the order of exlibs is important.)
 require distutils sourceforge launchpad [ branch=trunk suffix=tar.gz ]
 export_exlib_phases src_prepare
-
-BUGS_TO="leycec@gmail.com"
 
 SUMMARY="Python shell designed to be reliable and fun"
 DESCRIPTION="
@@ -24,8 +22,8 @@ and run it instantly.
 # Inclusion of the "launchpad" exlib, above, overwrites the HOMEPAGE. Redeclare.
 HOMEPAGE="http://dreampie.sourceforge.net"
 
-SLOT="0"
 LICENCES="GPL-3"
+SLOT="0"
 MYOPTIONS=""
 DEPENDENCIES="
     run:
@@ -33,8 +31,8 @@ DEPENDENCIES="
         gnome-bindings/pygtksourceview:2
 "
 
-#FIXME leycec: rewrite shebang headers so as to run against python3, if
-# installed.
+BUGS_TO="leycec@gmail.com"
+
 dreampie_src_prepare() {
     default
 }
