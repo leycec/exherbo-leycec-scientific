@@ -1,0 +1,69 @@
+# Copyright 2010 Cecil Curry <leycec@gmail.com>
+# Distributed under the terms of the GNU General Public License v2
+
+require distutils [ python_dep=2.4 has_lib=true has_bin=true ]
+export_exlib_phases src_test pkg_postinst
+
+SUMMARY="Scientific tools for Python"
+DESCRIPTION="
+SciPy (pronounced \"Sigh Pie\") is open-source software for mathematics, science, and engineering. It
+is also the name of a very popular conference on scientific programming with Python. The SciPy
+library depends on NumPy, which provides convenient and fast N-dimensional array manipulation. The
+SciPy library is built to work with NumPy arrays, and provides many user-friendly and efficient
+numerical routines such as routines for numerical integration and optimization. Together, they run
+on all popular operating systems, are quick to install, and are free of charge. NumPy and SciPy are
+easy to use, but powerful enough to be depended upon by some of the world's leading scientists and
+engineers. If you need to manipulate numbers on a computer and display or publish the results, give
+SciPy a try!
+"
+HOMEPAGE="http://scipy.org/"
+
+if [[ "${PV}" == scm ]]; then
+    SCM_REPOSITORY="http://svn.scipy.org/svn/${PN}"
+    require scm-svn
+else
+    DOWNLOADS="mirror://sourceforge/${PN}/${PNV}.tar.gz"
+fi
+
+LICENCES="BSD-3"
+SLOT="0"
+MYOPTIONS=""
+
+DEPENDENCIES="
+    build+run:
+        dev-python/numpy[>=1.4.1]
+    run:
+        dev-python/Imaging
+    test:
+        dev-python/nose[>=0.10.3]
+"
+
+REMOTE_IDS="freshmeat:${PN} sourceforge:${PN}"
+UPSTREAM_DOCUMENTATION="http://docs.scipy.org/doc/${PN}/reference [[ lang = en ]]"
+DEFAULT_SRC_INSTALL_EXTRA_DOCS=( "LATEST.txt" "THANKS.txt" "TOCHANGE.txt" )
+
+# Use SciPy-bundled ATLAS, FFTW, and UMFPACK for the moment.
+export {ATLAS,FFTW,FFTW3,UMFPACK}=None
+
+scipy_src_test() {
+    local scipy_test_dir="${TEMP}"/test
+    local scipy_test_log="${TEMP}"/test.log
+
+    # Temporarily install SciPy to a temporary directory for testing.
+    edo "${PYTHON}" setup.py install \
+        --home="${scipy_test_dir}" \
+        --no-compile
+
+    edo pushd "${scipy_test_dir}/lib"
+#   PYTHONPATH="python" "${PYTHON}" -c "import scipy; scipy.test('full')" 2>&1 | \
+    PYTHONPATH="python" "${PYTHON}" -c "import scipy; scipy.test()" 2>&1 | \
+        tee "${scipy_test_log}"
+    grep -q '^ERROR' "${scipy_test_log}" && die "Tests failed"
+    edo popd
+}
+
+scipy_pkg_postinst() {
+    elog "Consider setting environment variable \"SCIPY_PIL_IMAGE_VIEWER\": e.g.,"
+    elog "\texport SCIPY_PIL_IMAGE_VIEWER=feh"
+}
+
