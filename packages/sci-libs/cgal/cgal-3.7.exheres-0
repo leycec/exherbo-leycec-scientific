@@ -1,0 +1,9 @@
+# Copyright 2010 Cecil Curry <leycec@gmail.com>
+# Distributed under the terms of the GNU General Public License v2
+
+require cgal
+
+# CGAL hides its download under an annoying form; use this instead.
+DOWNLOADS="http://gentoo.osuosl.org/distfiles/CGAL-${PV}.tar.xz"
+PLATFORMS="~amd64 ~x86"
+

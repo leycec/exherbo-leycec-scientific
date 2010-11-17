@@ -1,0 +1,88 @@
+# Copyright 2010 Cecil Curry <leycec@gmail.com>
+# Distributed under the terms of the GNU General Public License v2
+# Based in part upon 'cgal-3.7.ebuild' from Gentoo, which is:
+#     Copyright 1999-2010 Gentoo Foundation
+
+require cmake
+export_exlib_phases src_install
+
+SUMMARY="Computational Geometry Algorithms Library"
+DESCRIPTION="
+The Computational Geometry Algorithms Library (CGAL), offers data structures and algorithms like
+triangulations (2D constrained triangulations and Delaunay triangulations in 2D and 3D, periodic
+triangulations in 3D), Voronoi diagrams (for 2D and 3D points, 2D additively weighted Voronoi
+diagrams, and segment Voronoi diagrams), polygons (Boolean operations, offsets, straight skeleton),
+polyhedra (Boolean operations), arrangements of curves and their applications (2D and 3D envelopes,
+Minkowski sums), mesh generation (2D Delaunay mesh generation and 3D surface and volume mesh
+generation, skin surfaces), geometry processing (surface mesh simplification, subdivision and
+parameterization, as well as estimation of local differential properties, and approximation of
+ridges and umbilics), alpha shapes, convex hull algorithms (in 2D, 3D and dD), search structures (kd
+trees for nearest neighbor search, and range and segment trees), interpolation (natural neighbor
+interpolation and placement of streamlines), shape analysis, fitting, and distances (smallest
+enclosing sphere of points or spheres, smallest enclosing ellipsoid of points, principal component
+analysis), and kinetic data structures.
+
+All these data structures and algorithms operate on geometric objects like points and segments, and
+perform geometric tests on them. These objects and predicates are regrouped in CGAL Kernels.
+
+Finally, the Support Library offers geometric object generators and spatial sorting functions, as
+well as a matrix search framework and a solver for linear and quadratic programs. It further offers
+interfaces to third party software such as the GUI libraries Qt, Geomview, and the Boost Graph
+Library.
+"
+
+HOMEPAGE="http://www.cgal.org"
+UPSTREAM_DOCUMENTATION="${HOMEPAGE}/Manual/latest/doc_html/cgal_manual/contents.html [[ lang = en ]]"
+
+LICENCES="|| ( LGPL-2.1 QPL-1.0 )"
+SLOT="0"
+
+MYOPTIONS="examples gmp lapack qt4"
+DEPENDENCIES="
+    build:
+        app-arch/xz
+    build+run:
+        dev-libs/boost
+        dev-libs/mpfr
+        x11-dri/mesa
+        x11-libs/libX11
+        gmp? ( dev-libs/gmp )
+        lapack? ( virtual/lapack )
+        qt4? ( x11-libs/qt:4[opengl] )
+"
+
+BUGS_TO="leycec@gmail.com"
+
+DEFAULT_SRC_PREPARE_PATCHES=( "${FILES}/CGAL_SetupFlags.cmake.patch" )
+
+CMAKE_SRC_CONFIGURE_PARAMS=(
+    "-DCGAL_INSTALL_LIB_DIR=$(get_libdir)"
+    -DCGAL_DONT_OVERRIDE_CMAKE_FLAGS:BOOL=TRUE
+
+    # Don't build Qt3 or LEDA components.
+    -DWITH_CGAL_Qt3:BOOL=FALSE
+    -DWITH_LEDA:BOOL=FALSE
+)
+CMAKE_SRC_CONFIGURE_OPTION_WITHS=(
+    'examples EXAMPLES'
+    'examples DEMOS'
+    'gmp GMP'
+    'gmp GMPXX'
+    'lapack CPACK'
+    'qt4 CGAL_Qt4'
+)
+
+WORK="${WORKBASE}/CGAL-${PV}"
+
+cgal_src_install() {
+    cmake_src_install
+
+    # Yes, we explicitly call this. The "cmake" exlib prevents this, by default.
+    emagicdocs
+
+    if option examples; then
+        docinto  'examples'
+        dodoc -r 'examples'
+    fi
+}
+
