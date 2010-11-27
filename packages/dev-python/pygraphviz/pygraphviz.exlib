@@ -4,8 +4,6 @@
 require distutils [ python_dep=2.6 ] pypi
 export_exlib_phases src_test src_install
 
-BUGS_TO="leycec@gmail.com"
-
 SUMMARY="Python interface to the Graphviz graph layout and visualization package"
 DESCRIPTION="
 PyGraphviz is a Python interface to the Graphviz graph layout and visualization
@@ -18,8 +16,8 @@ PyGraphviz is independent from NetworkX but implements a similar interface.
 HOMEPAGE="http://networkx.lanl.gov/pygraphviz"
 UPSTREAM_DOCUMENTATION="${HOMEPAGE}/contents.html [[ lang = en ]]"
 
-SLOT="0"
 LICENCES="BSD-3"
+SLOT="0"
 MYOPTIONS="examples"
 DEPENDENCIES="
     build:
@@ -29,6 +27,8 @@ DEPENDENCIES="
     test:
         dev-python/nose
 "
+
+BUGS_TO="leycec@gmail.com"
 
 DEFAULT_SRC_PREPARE_PATCHES=( "${FILES}/setup.py.patch" )
 
@@ -44,7 +44,6 @@ pygraphviz_src_install() {
     distutils_src_install
 
     if option examples; then
-        echo ">>> examples!"
         docinto examples
         dodoc "${WORK}/examples/"*
     fi

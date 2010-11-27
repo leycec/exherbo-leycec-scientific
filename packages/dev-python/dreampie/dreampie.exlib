@@ -5,7 +5,7 @@
 
 # Dreampie hosts its front-facing website with Sourceforge and its
 # download with Launchpad. (Thus, the order of exlibs is important.)
-require distutils sourceforge launchpad [ branch=trunk suffix=tar.gz ]
+require distutils sourceforge launchpad [ branch=trunk suffix='tar.gz' ]
 export_exlib_phases src_prepare
 
 SUMMARY="Python shell designed to be reliable and fun"

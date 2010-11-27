@@ -1,49 +1,48 @@
 # Copyright 2010 Cecil Curry <leycec@gmail.com>
 # Distributed under the terms of the GNU General Public License v2
 
-# Require "pypi" last, as the python-dateutil DOWNLOAD is hosted there.
 require distutils [ python_dep=2.6 ] pypi
 export_exlib_phases src_prepare src_test src_install
-
-BUGS_TO="leycec@gmail.com"
 
 SUMMARY="Python extensions to the standard datetime module"
 DESCRIPTION="
 python-dateutil provides powerful extensions to the standard datetime module
 available in Python 2.3+, particularly:
 
-    * Computing of relative deltas (next month, next year, next monday, last
-      week of month, etc);
-    * Computing of relative deltas between two given date and/or datetime
-      objects;
-    * Computing of dates based on very flexible recurrence rules, using a
-      superset of the iCalendar specification. Parsing of RFC strings is
-      supported as well.
-    * Generic parsing of dates in almost any string format;
-    * Timezone (tzinfo) implementations for tzfile(5) format files
-      (/etc/localtime, /usr/share/zoneinfo, etc), TZ environment string (in all
-      known formats), iCalendar format files, given ranges (with help from
-      relative deltas), local machine timezone, fixed offset timezone, UTC
-      timezone, and Windows registry-based time zones.
-    * Internal up-to-date world timezone information based on Olson's database.
-    * Computing of Easter Sunday dates for any given year, using Western,
-      Orthodox or Julian algorithms;
-    * More than 400 test cases. 
+* Computing of relative deltas (next month, next year, next monday, last
+  week of month, etc);
+* Computing of relative deltas between two given date and/or datetime
+  objects;
+* Computing of dates based on very flexible recurrence rules, using a
+  superset of the iCalendar specification. Parsing of RFC strings is
+  supported as well.
+* Generic parsing of dates in almost any string format;
+* Timezone (tzinfo) implementations for tzfile(5) format files
+  (/etc/localtime, /usr/share/zoneinfo, etc), TZ environment string (in all
+  known formats), iCalendar format files, given ranges (with help from
+  relative deltas), local machine timezone, fixed offset timezone, UTC
+  timezone, and Windows registry-based time zones.
+* Internal up-to-date world timezone information based on Olson's database.
+* Computing of Easter Sunday dates for any given year, using Western,
+  Orthodox or Julian algorithms;
+* More than 400 test cases. 
 "
 
-# python-dateutil's homepage URI is also its documentation URI.
+# python-dateutil's homepage URI is also its documentation URI, oddly.
 HOMEPAGE="http://labix.org/python-dateutil"
 DOWNLOADS="http://labix.org/download/${PN}/${PNV}.tar.gz"
 UPSTREAM_DOCUMENTATION="${HOMEPAGE} [[ lang = en ]]"
 
-SLOT="0"
 LICENCES="PSF-2.3"
+SLOT="0"
 
 MYOPTIONS="examples"
 DEPENDENCIES="
     build+run:
         sys-libs/timezone-data[>=${PV}]
 "
+
+BUGS_TO="leycec@gmail.com"
 
 DEFAULT_SRC_PREPARE_PATCHES=( "${FILES}/tz.py.patch" )
 
@@ -58,18 +57,18 @@ python-dateutil_src_prepare() {
     # "datautil.tz.gettz() function will now try to use the system timezone
     # files, and fallback to the internal versions...by using
     # dateutil.zoneinfo.gettz()". So just kill the internal versions.
-    edo sed -e 's~"dateutil\.zoneinfo"~~' \
-            -e '/package_data=/d' \
+    edo sed -e 's~"dateutil\.zoneinfo"~~'\
+            -e '/package_data=/d'\
             -i 'setup.py'
 
     # Fix the unit tests to use system timezones rather than internal timezones.
-    edo sed -e 's~zoneinfo\.~~' \
-            -e '/import zoneinfo/d' \
+    edo sed -e 's~zoneinfo\.~~'\
+            -e '/import zoneinfo/d'\
             -i "${DATEUTIL_TEST_SCRIPT}"
 }
 
 python-dateutil_src_test() {
-    PYTHONPATH="build-$(python_get_abi)/lib" \
+    PYTHONPATH="build-$(python_get_abi)/lib"\
         "${PYTHON}" "${DATEUTIL_TEST_SCRIPT}"
 }
 

@@ -1,0 +1,23 @@
+# Copyright 2010 Cecil Curry <leycec@gmail.com>
+# Distributed under the terms of the GNU General Public License v2
+
+require distutils [ python_dep=2.4 ] pypi
+
+SUMMARY="Python interface to the igraph high-performance graph library"
+DESCRIPTION="
+Python interface to the igraph high-performance graph library, primarily aimed
+at complex network research and analysis.
+"
+UPSTREAM_DOCUMENTATION="http://packages.python.org/python-igraph [[ lang = en ]]"
+
+LICENCES="GPL-2"
+SLOT="0"
+MYOPTIONS="cairo [[ description = [ Generate publication-quality graph plots via Cairo ] ]]"
+DEPENDENCIES="
+    build+run:
+        sci-graphs/igraph[=${PV}]
+        cairo? ( dev-python/pycairo )
+"
+
+BUGS_TO="leycec@gmail.com"
+

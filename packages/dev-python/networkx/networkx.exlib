@@ -4,8 +4,6 @@
 require distutils [ python_dep=2.6 ] pypi
 export_exlib_phases src_compile src_test src_install
 
-BUGS_TO="leycec@gmail.com"
-
 SUMMARY="Python package for creating, manipulating, and studying complex networks"
 DESCRIPTION="
 NetworkX is a Python package for the creation, manipulation, and study of
@@ -21,8 +19,8 @@ scientists.
 HOMEPAGE="http://networkx.lanl.gov"
 UPSTREAM_DOCUMENTATION="${HOMEPAGE}/contents.html [[ lang = en ]]"
 
-SLOT="0"
 LICENCES="LGPL-2.1"
+SLOT="0"
 
 #FIXME: Enable "doc" as soon as its dependencies are available.
 MYOPTIONS="
@@ -40,6 +38,8 @@ DEPENDENCIES="
 #           dev-python/matplotlib
 #           dev-python/sphinx
 #       )
+
+BUGS_TO="leycec@gmail.com"
 
 DEFAULT_SRC_PREPARE_PATCHES=( "${FILES}/setup.py.patch" )
 

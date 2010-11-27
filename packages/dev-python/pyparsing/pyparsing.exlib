@@ -4,7 +4,7 @@
 # pyparsing is available at PyPi, Wikispaces, and Sourceforge. Its official
 # homepage, however, is Wikispaces while its official download source is
 # Sourceforge. This, in turn, effects statement order below.
-require distutils [ python_dep=2.6 ] pypi sourceforge [ suffix="tar.gz" ]
+require distutils [ python_dep=2.6 ] pypi sourceforge [ suffix='tar.gz' ]
 export_exlib_phases src_install
 
 BUGS_TO="leycec@gmail.com"
