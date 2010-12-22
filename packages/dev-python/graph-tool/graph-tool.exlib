@@ -1,0 +1,68 @@
+# Copyright 2010 Cecil Curry <leycec@gmail.com>
+# Distributed under the terms of the GNU General Public License v2
+
+require python [ python_dep=2.5 ]
+
+SUMMARY="Python package for creating, manipulating, and studying complex networks"
+DESCRIPTION="
+graph-tool is an efficient Python module for manipulation and statistical
+analysis of graphs (i.e., networks). With graph-tool you can do the following:
+
+* Easily create directed or undirected graphs and manipulate them in an arbitrary
+  fashion, using the convenience and expressiveness of the Python language!
+* Associate arbitrary information to the vertices, edges or even the graph itself,
+  by means of property maps.
+* Filter vertices and/or edges \"on the fly\", such that they appear to have been
+  removed from the graph, but can be easily recovered.
+* Instantaneously reverse the edge direction of directed graphs, and easily
+  transform directed graphs into undirected, and vice-versa.
+* Save and load your graphs from files using the graphml and dot file formats,
+  which provide interoperability with other software. You can also pickle your
+  graphs at will!
+* Conveniently draw your graphs, using a variety of algorithms and output
+  formats (including to the screen). graph-tool works as a very comfortable
+  interface to the excellent graphviz package.
+* Collect all sorts of statistics: degree/property histogram, combined degree/
+  property histogram, vertex-vertex correlations, assortativity, average vertex-
+  vertex shortest distance, etc.
+* Run several topological algorithms on your graphs, such as isomorphism,
+  minimum spanning tree, connected components, dominator tree, etc.
+* Generate random graphs, with arbitrary degree distribution and degree
+  correlation.
+* Calculate clustering coefficients, motif statistics, communities, centrality
+  measures, etc.
+* Ad-hoc compilation and execution of C++ code, for efficient implementation of
+  throw-away code for specific projects.
+"
+
+HOMEPAGE="http://projects.skewed.de/graph-tool"
+DOWNLOADS="http://downloads.skewed.de/graph-tool/${PNV}.tar.bz2"
+UPSTREAM_DOCUMENTATION="${HOMEPAGE}/doc [[ lang = en ]]"
+
+LICENCES="GPL-3"
+SLOT="0"
+
+MYOPTIONS="
+    dot  [[ description = [ Read and write Graphviz files ] ]]
+"
+DEPENDENCIES="
+    build:
+        sys-devel/gcc[>=4.4]
+    build+run:
+        dev-libs/boost[>=1.38.0]
+        dev-libs/expat
+        dev-python/scipy
+        sci-libs/cgal
+    run:
+        dev-python/matplotlib
+        dot? ( media-gfx/graphviz )
+"
+
+BUGS_TO="leycec@gmail.com"
+
+DEFAULT_SRC_CONFIGURE_PARAMS=( --enable-openmp )
+
+# graph-tool makes extensive use of template programming, requiring >= 1G VSS
+# for *each* compilation job. To preserve sanity, prevent parallel compilation.
+DEFAULT_SRC_COMPILE_PARAMS=( -j1 )
+

@@ -1,0 +1,16 @@
+# Copyright 2010 Cecil Curry <leycec@gmail.com>
+# Distributed under the terms of the GNU General Public License v2
+
+SCM_REPOSITORY="git://git.skewed.de/graph-tool"
+
+require graph-tool scm-git
+
+DOWNLOADS=
+PLATFORMS="~amd64 ~x86"
+
+# graph-tool scm does not supply pre-generated makefiles; do so now.
+src_prepare() {
+    default
+    edo "${WORK}/autogen.sh"
+}
+
