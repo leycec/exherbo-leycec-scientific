@@ -8,7 +8,7 @@ DESCRIPTION="
 Python interface to the igraph high-performance graph library, primarily aimed
 at complex network research and analysis.
 "
-UPSTREAM_DOCUMENTATION="http://packages.python.org/python-igraph [[ lang = en ]]"
+UPSTREAM_DOCUMENTATION="http://igraph.sourceforge.net/doc/python/index.html [[ lang = en ]]"
 
 LICENCES="GPL-2"
 SLOT="0"

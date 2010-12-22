@@ -16,14 +16,9 @@ easy to use, but powerful enough to be depended upon by some of the world's lead
 engineers. If you need to manipulate numbers on a computer and display or publish the results, give
 SciPy a try!
 "
-HOMEPAGE="http://scipy.org/"
 
-if [[ "${PV}" == scm ]]; then
-    SCM_REPOSITORY="http://svn.scipy.org/svn/${PN}"
-    require scm-svn
-else
-    DOWNLOADS="mirror://sourceforge/${PN}/${PNV}.tar.gz"
-fi
+HOMEPAGE="http://scipy.org"
+DOWNLOADS="mirror://sourceforge/${PN}/${PNV}.tar.gz"
 
 LICENCES="BSD-3"
 SLOT="0"
@@ -39,8 +34,8 @@ DEPENDENCIES="
 "
 
 REMOTE_IDS="freshmeat:${PN} sourceforge:${PN}"
-UPSTREAM_DOCUMENTATION="http://docs.scipy.org/doc/${PN}/reference [[ lang = en ]]"
-DEFAULT_SRC_INSTALL_EXTRA_DOCS=( "LATEST.txt" "THANKS.txt" "TOCHANGE.txt" )
+UPSTREAM_DOCUMENTATION="http://docs.scipy.org/doc/scipy/reference [[ lang = en ]]"
+DEFAULT_SRC_INSTALL_EXTRA_DOCS=( LATEST.txt THANKS.txt TOCHANGE.txt )
 
 # Use SciPy-bundled ATLAS, FFTW, and UMFPACK for the moment.
 export {ATLAS,FFTW,FFTW3,UMFPACK}=None

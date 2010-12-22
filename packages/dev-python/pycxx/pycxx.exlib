@@ -5,10 +5,8 @@
 
 require \
     distutils [ python_dep=2.6 ] \
-    sourceforge [ project='cxx' suffix='tar.gz' ]
+    sourceforge [ project=cxx suffix='tar.gz' ]
 export_exlib_phases src_unpack src_prepare src_install
-
-BUGS_TO="leycec@gmail.com"
 
 SUMMARY="A set of C++ facilities simplifying Python extension writing"
 DESCRIPTION="
@@ -29,9 +27,11 @@ with C++ as follows:
 "
 
 UPSTREAM_DOCUMENTATION="http://cxx.sourceforge.net/PyCXX-Python3.html [[ lang = en ]]"
-SLOT="0"
 LICENCES="PyCXX"
+SLOT="0"
 MYOPTIONS="doc examples"
+
+BUGS_TO="leycec@gmail.com"
 
 DEFAULT_SRC_PREPARE_PATCHES=( "${FILES}/setup.py.patch" )
 
@@ -63,12 +63,12 @@ pycxx_src_install() {
 
     if option doc; then
         insinto "${pycxx_doc_dir}/html"
-        doins -r 'Doc'/*
+        doins -r Doc/*
     fi
 
     if option examples; then
         insinto "${pycxx_doc_dir}/examples"
-        doins -r 'Demo'/*
+        doins -r Demo/*
     fi
 }
 
