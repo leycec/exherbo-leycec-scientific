@@ -1,0 +1,23 @@
+# Copyright 2010 Cecil Curry <leycec@gmail.com>
+# Distributed under the terms of the GNU General Public License v2
+
+require distutils [ python_dep=2.4 ] sourceforge pypi
+
+SUMMARY="Python programming environment for object and heap memory analysis"
+DESCRIPTION="
+Guppy-PE is a Python programming environment providing object and heap memory
+sizing, profiling and analysis. It includes a prototypical specification
+language that can be used to formally specify aspects of Python programs and
+generate tests and documentation from a common source.
+"
+
+HOMEPAGE="http://guppy-pe.sourceforge.net"
+UPSTREAM_DOCUMENTATION="${HOMEPAGE}/#Documentation [[ lang = en ]]"
+
+LICENCES="MIT"
+SLOT="0"
+MYOPTIONS=
+DEPENDENCIES=
+
+BUGS_TO="leycec@gmail.com"
+
