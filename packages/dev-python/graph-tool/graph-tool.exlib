@@ -41,7 +41,6 @@ UPSTREAM_DOCUMENTATION="${HOMEPAGE}/doc [[ lang = en ]]"
 
 LICENCES="GPL-3"
 SLOT="0"
-
 MYOPTIONS="
     dot  [[ description = [ Read and write Graphviz files ] ]]
 "
@@ -54,8 +53,9 @@ DEPENDENCIES="
         dev-python/scipy
         sci-libs/cgal
     run:
-        dev-python/matplotlib
         dot? ( media-gfx/graphviz )
+    suggestion:
+        dev-python/matplotlib [[ description = [ Plot graph statistics ] ]]
 "
 
 BUGS_TO="leycec@gmail.com"
