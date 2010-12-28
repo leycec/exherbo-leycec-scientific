@@ -36,7 +36,7 @@ bitstring_src_test() {
 }
 
 bitstring_src_install() {
-    default
+    distutils_src_install
 
     if option doc; then
         docinto pdf
