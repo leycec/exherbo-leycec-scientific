@@ -1,0 +1,46 @@
+# Copyright 2010 Cecil Curry <leycec@gmail.com>
+# Distributed under the terms of the GNU General Public License v2
+
+require\
+    distutils [ python_dep=2.6 ]\
+    googlecode [ project="python-bitstring" suffix=zip ]
+export_exlib_phases src_test src_install
+
+SUMMARY="Pure-Python module for creating, manipulating and analyzing bitstrings"
+DESCRIPTION="
+Pure-Python module making the creation, manipulation and analysis of binary data
+as simple and natural as possible:
+
+* Supports Python 2.6 and later (including Python 3). Version 1.0 also supported
+  Python 2.4 and 2.5.
+* Rich API - chances are that whatever you want to do there's a simple and
+  elegant way of doing it.
+* Bit level slicing, joining, searching, replacing and more.
+* Create bitstrings from hex, octal, binary, files, formatted strings, bytes,
+  integers and floats of different endiannesses.
+* Powerful binary packing and unpacking functions.
+* Read from and interpret bitstrings as streams of binary data.
+"
+
+# bitstring's homepage URI is also its documentation URI, oddly.
+HOMEPAGE="http://packages.python.org/bitstring"
+UPSTREAM_DOCUMENTATION="${HOMEPAGE} [[ lang = en ]]"
+LICENCES="MIT"
+SLOT="0"
+MYOPTIONS="doc"
+
+BUGS_TO="leycec@gmail.com"
+
+bitstring_src_test() {
+    PYTHONPATH="build-$(python_get_abi)/lib" "${PYTHON}" "${WORK}/bitstring.py"
+}
+
+bitstring_src_install() {
+    default
+
+    if option doc; then
+        docinto pdf
+        dodoc 'doc/bitstring_manual.pdf'
+    fi
+}
+

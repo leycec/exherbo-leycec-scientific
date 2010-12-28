@@ -7,8 +7,6 @@
 require distutils [ python_dep=2.6 ] sourceforge pypi
 export_exlib_phases src_prepare src_test
 
-BUGS_TO="leycec@gmail.com"
-
 SUMMARY="Python conversion of the Olson tz (timezone) database"
 DESCRIPTION="
 pytz brings the Olson tz database into Python. This library allows accurate and
@@ -17,16 +15,17 @@ the issue of ambiguous times at the end of daylight savings. Amost all of the
 Olson timezones are supported.
 "
 
-# pytz's sourceforge homepage URI is also its documentation URI.
+# pytz's sourceforge homepage URI is also its documentation URI, oddly.
 HOMEPAGE="http://pytz.sourceforge.net"
 UPSTREAM_DOCUMENTATION="${HOMEPAGE} [[ lang = en ]]"
-
-SLOT="0"
 LICENCES="MIT"
+SLOT="0"
 DEPENDENCIES="
     build+run:
         sys-libs/timezone-data[>=${PV}]
 "
+
+BUGS_TO="leycec@gmail.com"
 
 DEFAULT_SRC_PREPARE_PATCHES=( "${FILES}/__init__.py.patch" )
 DEFAULT_SRC_INSTALL_EXTRA_DOCS=( "CHANGES.txt" )
