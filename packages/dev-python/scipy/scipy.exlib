@@ -4,6 +4,13 @@
 require distutils [ python_dep=2.4 has_lib=true has_bin=true ]
 export_exlib_phases src_test pkg_postinst
 
+# Some scipy releases (e.g., "0.9.0b1") have cave-noncompliant version specs.
+# Thus scipy exheres may override their filename version spec at runtime.
+myexparam pv="${PV}"
+exparam -v MY_PV pv
+myexparam pnv="${PN}-${MY_PV}"
+exparam -v MY_PNV pnv
+
 SUMMARY="Scientific tools for Python"
 DESCRIPTION="
 SciPy (pronounced \"Sigh Pie\") is open-source software for mathematics, science, and engineering. It
@@ -18,15 +25,12 @@ SciPy a try!
 "
 
 HOMEPAGE="http://scipy.org"
-DOWNLOADS="mirror://sourceforge/${PN}/${PNV}.tar.gz"
-
+DOWNLOADS="mirror://sourceforge/${PN}/${MY_PNV}.tar.gz"
 LICENCES="BSD-3"
 SLOT="0"
-MYOPTIONS=""
-
 DEPENDENCIES="
     build+run:
-        dev-python/numpy[>=1.4.1]
+        dev-python/numpy[>=1.5.1]
     run:
         dev-python/Imaging
     test:
@@ -37,6 +41,8 @@ REMOTE_IDS="freshmeat:${PN} sourceforge:${PN}"
 UPSTREAM_DOCUMENTATION="http://docs.scipy.org/doc/scipy/reference [[ lang = en ]]"
 DEFAULT_SRC_INSTALL_EXTRA_DOCS=( LATEST.txt THANKS.txt TOCHANGE.txt )
 
+WORK="${WORKBASE}/${MY_PNV}"
+
 # Use SciPy-bundled ATLAS, FFTW, and UMFPACK for the moment.
 export {ATLAS,FFTW,FFTW3,UMFPACK}=None
 
@@ -45,13 +51,13 @@ scipy_src_test() {
     local scipy_test_log="${TEMP}"/test.log
 
     # Temporarily install SciPy to a temporary directory for testing.
-    edo "${PYTHON}" setup.py install \
-        --home="${scipy_test_dir}" \
+    edo "${PYTHON}" setup.py install\
+        --home="${scipy_test_dir}"\
         --no-compile
 
     edo pushd "${scipy_test_dir}/lib"
 #   PYTHONPATH="python" "${PYTHON}" -c "import scipy; scipy.test('full')" 2>&1 | \
-    PYTHONPATH="python" "${PYTHON}" -c "import scipy; scipy.test()" 2>&1 | \
+    PYTHONPATH="python" "${PYTHON}" -c "import scipy; scipy.test()" 2>&1 |\
         tee "${scipy_test_log}"
     grep -q '^ERROR' "${scipy_test_log}" && die "Tests failed"
     edo popd
