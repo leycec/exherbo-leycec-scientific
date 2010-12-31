@@ -44,6 +44,6 @@ pytz_src_prepare() {
 }
 
 pytz_src_test() {
-    PYTHONPATH="build-$(python_get_abi)/lib" "${PYTHON}" "${PYTZ_TEST_SCRIPT}"
+    PYTHONPATH="build-$(python_get_abi)/lib" edo "${PYTHON}" "${PYTZ_TEST_SCRIPT}"
 }
 

@@ -56,8 +56,8 @@ scipy_src_test() {
         --no-compile
 
     edo pushd "${scipy_test_dir}/lib"
-#   PYTHONPATH="python" "${PYTHON}" -c "import scipy; scipy.test('full')" 2>&1 | \
-    PYTHONPATH="python" "${PYTHON}" -c "import scipy; scipy.test()" 2>&1 |\
+#   PYTHONPATH='python' "${PYTHON}" -c "import scipy; scipy.test('full')" 2>&1 | \
+    PYTHONPATH='python' "${PYTHON}" -c "import scipy; scipy.test()" 2>&1 |\
         tee "${scipy_test_log}"
     grep -q '^ERROR' "${scipy_test_log}" && die "Tests failed"
     edo popd

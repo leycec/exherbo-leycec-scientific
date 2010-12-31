@@ -7,8 +7,6 @@
 require distutils [ python_dep=2.6 ] pypi sourceforge [ suffix='tar.gz' ]
 export_exlib_phases src_prepare src_test src_install
 
-BUGS_TO="leycec@gmail.com"
-
 SUMMARY="Python 2D plotting library"
 DESCRIPTION="
 matplotlib is a Python 2D plotting library producing publication quality figures
@@ -22,9 +20,8 @@ errorcharts, scatterplots, etc., with just a few lines of code.
 
 UPSTREAM_DOCUMENTATION="${HOMEPAGE}/contents.html [[ lang = en ]]"
 UPSTREAM_CHANGELOG="${HOMEPAGE}/users/whats_new.html [[ lang = en ]]"
-
-SLOT="0"
 LICENCES="matplotlib"
+SLOT="0"
 MYOPTIONS="examples cairo gtk qt4 tk"
 
 #FIXME: Unbundle:
@@ -46,11 +43,14 @@ DEPENDENCIES="
         media-libs/libpng
         gtk? ( gnome-bindings/pygtk )
         tk?  ( dev-lang/python[tk] )
-    run:
+    run+test:
         dev-python/pyparsing
+    run:
         cairo? ( dev-python/pycairo )
         qt4?   ( dev-python/PyQt4 )
 "
+
+BUGS_TO="leycec@gmail.com"
 
 DEFAULT_SRC_PREPARE_PATCHES=(
     "${FILES}/setupext.py.patch"
@@ -80,23 +80,23 @@ EOF
     done
 
     # Disable unsupported graphics backends.
-    edo sed -e 's~check_for_fltk()~False~' \
-            -e 's~check_for_qt()~False~' \
-            -e 's~check_for_wx()~False~' \
+    edo sed -e 's~check_for_fltk()~False~'\
+            -e 's~check_for_qt()~False~'\
+            -e 's~check_for_wx()~False~'\
             -i 'setup.py'
 
     # Do not install configuration files to the data directory.
-    edo sed -e "/'mpl-data\/matplotlibrc',/d" \
-            -e "/'mpl-data\/matplotlib.conf',/d" \
+    edo sed -e "/'mpl-data\/matplotlibrc',/d"\
+            -e "/'mpl-data\/matplotlib.conf',/d"\
             -i 'setup.py'
 
     # Force matplotlib to get configuration and data files from standard paths.
-    edo sed -e 's~path =  get_data_path()~path = "/etc/matplotlib"~' \
-            -e 's~os.path.dirname(__file__)~"/usr/share/matplotlib"~g'  \
+    edo sed -e 's~path =  get_data_path()~path = "/etc/matplotlib"~'\
+            -e 's~os.path.dirname(__file__)~"/usr/share/matplotlib"~g'\
             -i 'lib/matplotlib/__init__.py'
 
     # Replace references to the bundled pyparsing.
-    edo sed -e 's~matplotlib\.pyparsing~pyparsing~g' \
+    edo sed -e 's~matplotlib\.pyparsing~pyparsing~g'\
             -i 'lib/matplotlib/'{mathtext,fontconfig_pattern}.py
 
     # Remove bundled libraries.
@@ -104,7 +104,7 @@ EOF
 
     # Symlink in PyCXX headers and sources required for compilation.
     edo ln -s "/usr/include/python$(python_get_abi)/CXX/"* "CXX/"
-    edo ln -s "/usr/share/python$(python_get_abi)/CXX/"*   "CXX/"
+    edo ln -s "/usr/share/python$(python_get_abi)/CXX/"* "CXX/"
 }
 
 # void matplotlib_toggle_gui_backend(
@@ -134,11 +134,11 @@ matplotlib_toggle_gui_backend() {
 }
 
 matplotlib_src_test() {
-    edo pushd 'examples/tests'
+    edo pushd "${WORK}/examples/tests"
     local matplotlib_test_script='backend_driver.py'
 
     # Kill all tests attempting to open remote network connections.
-    local bad_test bad_tests=(
+    local bad_tests=(
         # Bad tests in "pylab_examples/".
         date_demo1
         date_demo2
@@ -154,12 +154,14 @@ matplotlib_src_test() {
         date_demo
         watermark_image
     )
-    for bad_test in "${bad_tests[@]}"; do
+    local bad_test
+    for   bad_test in "${bad_tests[@]}"; do
         edo sed -e "/'${bad_test}\.py',/d" -i "${matplotlib_test_script}"
     done
 
     # Run remaining tests.
-    PYTHONPATH="build-$(python_get_abi)/lib" \
+    local build_lib_dir="$(echo "${WORK}/build/"lib.*)"
+    PYTHONPATH="${build_lib_dir}:${WORK}/lib"\
         edo "${PYTHON}" "${matplotlib_test_script}" agg
     edo popd
 }
@@ -178,7 +180,7 @@ matplotlib_src_install() {
     # Install configuration files.
     local mpl_data_dir='lib/matplotlib/mpl-data/'
     insinto '/etc/matplotlib'
-    doins "${mpl_data_dir}/matplotlibrc" \
+    doins "${mpl_data_dir}/matplotlibrc"\
           "${mpl_data_dir}/matplotlib.conf"
 
     #FIXME: Enable after implementing document generation.

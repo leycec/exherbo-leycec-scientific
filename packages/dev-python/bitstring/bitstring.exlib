@@ -32,7 +32,7 @@ MYOPTIONS="doc"
 BUGS_TO="leycec@gmail.com"
 
 bitstring_src_test() {
-    PYTHONPATH="build-$(python_get_abi)/lib" "${PYTHON}" "${WORK}/bitstring.py"
+    edo "${PYTHON}" "${WORK}/bitstring.py"
 }
 
 bitstring_src_install() {

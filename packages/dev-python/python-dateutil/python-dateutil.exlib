@@ -32,10 +32,8 @@ available in Python 2.3+, particularly:
 HOMEPAGE="http://labix.org/python-dateutil"
 DOWNLOADS="http://labix.org/download/${PN}/${PNV}.tar.gz"
 UPSTREAM_DOCUMENTATION="${HOMEPAGE} [[ lang = en ]]"
-
 LICENCES="PSF-2.3"
 SLOT="0"
-
 MYOPTIONS="examples"
 DEPENDENCIES="
     build+run:
@@ -69,7 +67,7 @@ python-dateutil_src_prepare() {
 
 python-dateutil_src_test() {
     PYTHONPATH="build-$(python_get_abi)/lib"\
-        "${PYTHON}" "${DATEUTIL_TEST_SCRIPT}"
+        edo "${PYTHON}" "${DATEUTIL_TEST_SCRIPT}"
 }
 
 python-dateutil_src_install() {
