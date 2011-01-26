@@ -20,7 +20,6 @@ math.
 
 HOMEPAGE="http://pyparsing.wikispaces.com"
 UPSTREAM_DOCUMENTATION="http://crpppc19.epfl.ch/doc/python-pyparsing/htmldoc/frames.html [[ lang = en ]]"
-
 SLOT="0"
 LICENCES="MIT"
 MYOPTIONS="doc examples"
@@ -32,16 +31,16 @@ pyparsing_src_prepare() {
 
     # If Python 2, remove Python 3 code prior to calling python_bytecompile().
     if [[ $(python_get_abi) == 2.* ]]; then
-        edo rm 'pyparsing_py3.py'
+        edo rm pyparsing_py3.py
     else
-        edo mv -f 'pyparsing_py3.py' 'pyparsing.py'
+        edo mv -f pyparsing_py3.py pyparsing.py
         edo sed -e 's~pyparsing_py3 as pyparsing~pyparsing~g' \
                 -e 's~pyparsing_py3~pyparsing~g' \
-                -i 'pyparsing.py'
+                -i pyparsing.py
     fi
 
     # In either case, the above block removed "pyparsing_py3.py". Ensure this.
-    edo sed -e 's~, "pyparsing_py3"~~' -i 'setup.py'
+    edo sed -e 's~, "pyparsing_py3"~~' -i setup.py
 }
 
 pyparsing_src_install() {
@@ -49,15 +48,15 @@ pyparsing_src_install() {
 
     if option doc; then
         docinto pdf
-        dodoc 'docs/'*.pdf
+        dodoc docs/*.pdf
 
         insinto "/usr/share/doc/${PNVR}/html"
-        doins -r 'htmldoc'/*
+        doins -r htmldoc/*
     fi
 
     if option examples; then
         docinto  ''
-        dodoc -r 'examples'
+        dodoc -r examples
     fi
 }
 

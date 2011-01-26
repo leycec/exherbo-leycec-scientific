@@ -36,7 +36,6 @@ UPSTREAM_DOCUMENTATION="${HOMEPAGE}/Manual/latest/doc_html/cgal_manual/contents.
 
 LICENCES="|| ( LGPL-2.1 QPL-1.0 )"
 SLOT="0"
-
 MYOPTIONS="examples gmp lapack qt4"
 DEPENDENCIES="
     build:
@@ -53,6 +52,7 @@ DEPENDENCIES="
 
 BUGS_TO="leycec@gmail.com"
 
+WORK="${WORKBASE}/CGAL-${PV}"
 DEFAULT_SRC_PREPARE_PATCHES=( "${FILES}/CGAL_SetupFlags.cmake.patch" )
 
 CMAKE_SRC_CONFIGURE_PARAMS=(
@@ -71,8 +71,6 @@ CMAKE_SRC_CONFIGURE_OPTION_WITHS=(
     'lapack CPACK'
     'qt4 CGAL_Qt4'
 )
-
-WORK="${WORKBASE}/CGAL-${PV}"
 
 cgal_src_install() {
     cmake_src_install
