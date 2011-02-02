@@ -65,6 +65,6 @@ scipy_src_test() {
 
 scipy_pkg_postinst() {
     elog "Consider setting environment variable \"SCIPY_PIL_IMAGE_VIEWER\": e.g.,"
-    elog "\texport SCIPY_PIL_IMAGE_VIEWER=feh"
+    elog "  export SCIPY_PIL_IMAGE_VIEWER=feh"
 }
 
