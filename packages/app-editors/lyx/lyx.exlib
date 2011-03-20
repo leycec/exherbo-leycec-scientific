@@ -55,8 +55,11 @@ MYOPTIONS="
     spell   [[ description = [ Support aspell checking ] ]]
 "
 
-#FIXME: when available, add the following optional "build+run" dependency:
-#    app-text/aiksaurus 
+#FIXME: when available, add the following optional "build+run" dependencies:
+#       app-text/aiksaurus 
+#       app-text/texlive
+#...and the following "run" dependencies:
+#       rtf?     ( app-text/unrtf )
 
 # For a list of all hypothetical LyX dependencies, see:
 # http://www.lyx.org/AdditionalSoftware
@@ -79,11 +82,9 @@ DEPENDENCIES="
         docbook? ( app-text/sgmltools-lite )
         dot?     ( media-gfx/graphviz )
         pdf?     ( app-text/ghostscript )
-        rtf?     ( app-text/unrtf )
         svg?     ( || ( gnome-base/librsvg
                         media-gfx/inkscape ) )
 "
-#       app-text/texlive
 
 DEFAULT_SRC_PREPARE_PATCHES=( "${FILES}/scons_utils.py.patch" )
 
