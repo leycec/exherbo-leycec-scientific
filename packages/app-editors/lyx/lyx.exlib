@@ -1,4 +1,4 @@
-# Copyright 2010 Cecil Curry <leycec@gmail.com>
+# Copyright 2010-2011 Cecil Curry <leycec@gmail.com>
 # Distributed under the terms of the GNU General Public License v2
 # 
 # --------------------( SEE ALSO                           )--------------------
@@ -6,7 +6,7 @@
 #   http://wiki.lyx.org/Devel/BuildSystems
 #
 # --------------------( TODO                               )--------------------
-# * LyX requires TeX Live 2009. Sadly, due to the extreme complexities of
+# * LyX requires TeX Live 2010. Sadly, due to the extreme complexities of
 #   its installation, Exherbo has no such exheres. Thus, this exheres assumes
 #   you install TeX Live manually via the customary "net install." See:
 #       http://www.tug.org/texlive/doc/texlive-en/texlive-en.html 
@@ -127,7 +127,7 @@ lyx_src_prepare() {
         # Absolute path to the directory having shared libraries for QT4.
         qt_dir="/usr/share/qt4"
         # Absolute path to the directory having shared libraries for this arch.
-        extra_lib_path="/usr/$(get_libdir)"
+        extra_lib_path="/usr/${LIBDIR}"
         # Always disable debugging, at the moment.
         mode=release
         # Always enable QT4 as the GUI framework.

@@ -1,6 +1,6 @@
 Authors:  Cecil Curry <leycec@gmail.com>
 Upstream: no
-Synopsis: Allow non-versioned "/usr/$(get_libdir)"/libboost*.so filenames.
+Synopsis: Allow non-versioned "/usr/${LIBDIR}"/libboost*.so filenames.
 --- old/development/scons/scons_utils.py	2008-07-26 10:45:38.000000000 +0000
 +++ new/development/scons/scons_utils.py	2010-05-03 17:45:14.976305815 +0000
 @@ -311,17 +311,8 @@
