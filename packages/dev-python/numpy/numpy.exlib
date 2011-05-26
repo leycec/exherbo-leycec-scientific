@@ -1,0 +1,80 @@
+# Copyright 2009 Sterling X. Winter <replica@exherbo.org>
+# Copyright 2010 Cecil Curry <leycec@gmail.com>
+# Distributed under the terms of the GNU General Public License v2
+# Based in part upon 'numpy-1.3.0.ebuild' from Gentoo, which is:
+#     Copyright 1999-2009 Gentoo Foundation
+
+require distutils [ python_dep=2.4 has_lib=true has_bin=true ]
+export_exlib_phases src_test src_install
+
+SUMMARY="Fast and sophisticated array facility for the Python language"
+DESCRIPTION="
+NumPy is the fundamental package needed for scientific computing with Python.
+It contains:
+
+  * a powerful N-dimensional array object
+  * sophisticated broadcasting functions
+  * basic linear algebra functions
+  * basic Fourier transforms
+  * sophisticated random number capabilities
+  * tools for integrating Fortran code
+  * tools for integrating C/C++ code
+
+Besides its obvious scientific uses, NumPy can also be used as an efficient
+multi-dimensional container of generic data. Arbitrary data-types can be
+defined. This allows NumPy to seamlessly and speedily integrate with a wide
+variety of databases.
+"
+
+HOMEPAGE="http://numpy.scipy.org"
+DOWNLOADS="mirror://sourceforge/${PN}/${PNV}.tar.gz"
+LICENCES="BSD-3"
+SLOT="0"
+DEPENDENCIES="
+    build+run:
+        sys-devel/gcc[fortran]
+        virtual/blas
+        virtual/lapack
+    test:
+        dev-python/nose[>=0.10.3]
+"
+
+REMOTE_IDS="freshmeat:${PN} sourceforge:${PN}"
+UPSTREAM_DOCUMENTATION="http://docs.scipy.org/doc/${PN} [[ lang = en ]]"
+DEFAULT_SRC_INSTALL_EXTRA_DOCS=( "COMPATIBILITY" "DEV_README.txt" )
+
+numpy_src_test() {
+    local numpy_test_dir="${TEMP}"/test
+    local numpy_test_log="${TEMP}"/test.log
+
+    # Temporarily install NumPy to a temporary directory for testing.
+    edo "${PYTHON}" setup.py install \
+        --home="${numpy_test_dir}" \
+        --no-compile
+
+    edo pushd "${numpy_test_dir}"/lib
+    PYTHONPATH="python" "${PYTHON}" -c "import numpy; numpy.test()" 2>&1 | \
+        tee "${numpy_test_log}"
+    grep -q '^ERROR' "${numpy_test_log}" && die "Tests failed"
+    edo popd
+}
+
+numpy_src_install() {
+    distutils_src_install
+
+    local numpy_install_dir="${IMAGE}$(python_get_sitedir)"/${PN}
+    local f2py_docs_dir=${PN}/f2py/docs
+
+    # Remove distutils-installed documentation and empty directories.
+    edo rm -rf "${numpy_install_dir}"/{*.txt,COMPATIBILITY,f2py/docs,f2py/tests}
+
+    # Install f2py documentation.
+    doman ${PN}/f2py/f2py.1
+    docinto f2py
+    dodoc ${f2py_docs_dir}/*.txt
+    docinto f2py/examples
+    dodoc ${f2py_docs_dir}/!(*.txt)
+    docinto f2py/usersguide
+    dodoc ${f2py_docs_dir}/usersguide/*.*
+}
+
