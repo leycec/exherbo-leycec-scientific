@@ -1,0 +1,63 @@
+# Copyright 2011 Cecil Curry <leycec@gmail.com>
+# Distributed under the terms of the GNU General Public License v2
+
+require distutils [ python_dep=2.6 ] googlecode [ suffix='tar.gz' ]
+export_exlib_phases src_unpack src_install
+
+SUMMARY="GraphViz to LaTeX converter"
+DESCRIPTION="
+dot2tex is a GraphViz to LaTeX converter intended to give GraphViz-generated
+graphs a LaTeX-friendly \"look and feel.\" This is accomplished by converting
+xdot output from Graphviz to a series of PSTricks or PGF/TikZ commands,
+allowing:
+
+* Typesetting labels with LaTeX for mathematical notation.
+* Using native PSTricks and PGF/TikZ commands for drawing arrows (optional).
+* Using backend specific styles to customize the output.
+"
+
+HOMEPAGE="http://www.fauskes.net/code/dot2tex"
+UPSTREAM_DOCUMENTATION="${HOMEPAGE}/documentation [[ lang = en ]]"
+UPSTREAM_CHANGELOG="${HOMEPAGE}/news.html [[ lang = en ]]"
+
+LICENCES="MIT"
+SLOT="0"
+MYOPTIONS="doc examples"
+
+#FIXME: Also add the LaTeX "preview" command when we have that exheres.
+DEPENDENCIES="
+    build+run:
+        dev-python/pyparsing[>=1.4.8]
+        media-gfx/graphviz
+"
+
+BUGS_TO="leycec@gmail.com"
+
+dot2tex_src_unpack() {
+    default
+
+    # The dot2tex 2.8.7 tarball fails to set the execute bit for directories!
+    edo chmod -R ugo+rX "${WORK}"
+}
+
+dot2tex_src_install() {
+    default
+
+    if option doc; then
+        docinto pdf
+        dodoc doc/usage.pdf
+
+        docinto ''
+        dodoc doc/usage.txt
+
+        # Excluding the above, all other documentation is HTML-specific.
+        edo rm -f doc/usage.{pdf,txt}
+        docinto html
+        dodoc -r doc
+    fi
+
+    if option examples; then
+        docinto 'examples'
+        dodoc -r 'examples'
+    fi
+}
