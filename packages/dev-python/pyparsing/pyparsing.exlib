@@ -47,11 +47,11 @@ pyparsing_src_install() {
     distutils_src_install
 
     if option doc; then
+        docinto html
+        dodoc -r htmldoc/*
+
         docinto pdf
         dodoc docs/*.pdf
-
-        insinto "/usr/share/doc/${PNVR}/html"
-        doins -r htmldoc/*
     fi
 
     if option examples; then

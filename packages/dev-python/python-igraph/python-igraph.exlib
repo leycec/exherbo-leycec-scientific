@@ -16,8 +16,7 @@ MYOPTIONS="cairo [[ description = [ Generate publication-quality graph plots via
 DEPENDENCIES="
     build+run:
         sci-graphs/igraph[=${PV}]
-        cairo? ( dev-python/pycairo )
+        cairo? ( || ( dev-python/pycairo dev-python/py2cairo ) )
 "
 
 BUGS_TO="leycec@gmail.com"
-

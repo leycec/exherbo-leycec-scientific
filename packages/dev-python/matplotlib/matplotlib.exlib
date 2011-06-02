@@ -46,7 +46,7 @@ DEPENDENCIES="
     run+test:
         dev-python/pyparsing
     run:
-        cairo? ( dev-python/pycairo )
+        cairo? ( || ( dev-python/pycairo dev-python/py2cairo ) )
         qt4?   ( dev-python/PyQt4 )
 "
 
