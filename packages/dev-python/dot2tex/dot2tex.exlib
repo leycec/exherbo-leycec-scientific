@@ -41,7 +41,7 @@ dot2tex_src_unpack() {
 }
 
 dot2tex_src_install() {
-    default
+    distutils_src_install
 
     if option doc; then
         docinto pdf
